@@ -25,8 +25,8 @@ class Operation {
 		});
 	}
 
-	executeRequest(requestCallback) {
-		this.request.execute((err, result) => {
+	executeRequest(transactionId, requestCallback) {
+		this.request.execute(transactionId, (err, result) => {
 			requestCallback(err, result);
 		});
 	}

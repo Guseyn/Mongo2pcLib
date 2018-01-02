@@ -14,6 +14,71 @@ class Transaction {
 		this.onCommit = (results) => {};
 	}
 
+	invoke() {
+		this.currentOperationNum = 0;
+		if (this.operations.length === 0) {
+			throw new Error('transaction must contain at least one operation');
+		}
+
+		let transactionsCollection = collection();
+		let info = info();
+
+		transactionsCollection.insertOne(info, (err, result) => {
+			if (error == null) {
+				throw new Error('transaction can not be invoked');
+			}
+			this.start();
+		});
+	}
+
+	start() {
+		let transactionsCollection = this.collection;
+		transactionsCollection.findOneAndUpdate(
+			{
+				_id: this.id,
+				 state: 'initial'
+			},
+			{
+				$set: {
+					state: 'pending'
+				},
+				$currentDate: {
+					lastModified: true
+				}
+			}, (error, result) => {
+				if (error == null) {
+					throw new Error('transaction failed on start');
+				}
+				this.invokeNextOperation();
+			}
+		);
+	}
+
+	recover(operationNum) {
+
+	}
+
+	invokeNextOperation() {
+		let currentOperation = currentOperation();
+		let isOperationLast = this.currentOperationNum === this.operations.length - 1;
+		let transactionId = this.id;
+		if (currentOperation) {
+			currentOperation.executeRequest(transactionId, (result, err) => {
+				if (err != null) {
+					this.onRollback(this.results);
+				} else if (currentOperation.doRollback(result)) {
+					//  start new transaction for rollback
+				} else if (currentOperation.doNext(isOperationLast, result)) {
+					this.currentOperationNum += 1;
+					this.results.push(result);
+					this.invokeNextOperation();
+				} else {
+					this.onCommit(this.results);
+				}
+			});
+		}
+	}
+
 	collection() {
 		if (!this.collection) {
 			this.collection = this.db.collection(`${db.databaseName}-transactions`);
@@ -33,45 +98,7 @@ class Transaction {
 		return this.operations[this.currentOperationNum];
 	}
 
-	invoke() {
-		let collection = collection();
-		let info = info();
-		
-		this.currentOperationNum = 0;
-		if (this.operations.length === 0) {
-			throw new Error('transaction must contain at least one operation');
-		}
-		
-		collection.insertOne(info, (err, result) => {
-			if (error == null) {
-				throw new Error('transaction can not be invoked');
-			}
-			console.log(result);
-			this.invokeNextOperation();
-		});
-
-	}
-
-	invokeNextOperation() {
-		let currentOperation = currentOperation();
-		let isOperationLast = this.currentOperationNum === this.operations.length - 1;
-		if (currentOperation) {
-			currentOperation.executeRequest((result, err) => {
-				if (err != null) {
-					this.onRallback(this.results);
-				} else if (currentOperation.doRollback(result)) {
-					//  start new transaction for rollback
-				} else if (currentOperation.doNext(isOperationLast, result)) {
-					this.currentOperationNum += 1;
-					this.invokeNextOperation();
-				} else {
-					this.onCommit(this.results);
-				}
-			});
-		}
-	} 
-
-	onRallback(callback) {
+	onRollback(callback) {
 		this.onRallback = callback;
 	}
 

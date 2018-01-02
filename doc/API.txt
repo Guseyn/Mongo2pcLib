@@ -5,7 +5,6 @@ transaction = Transaction(id, db, ...operations);
 transaction.invoke();
 transaction.onCommit(commitCallback); // transactionCallback - (results) => {}
 transaction.onRollback(rollbackCallback); // rollbackCallback - (results) => {}
-transaction.onRecovery(recoveryCallback); // recoveryCallback - (results) => {}
 recoveringProcess = RecoveringProcess(db, options); // recovery
 recoveringProcess.start();
 
@@ -31,9 +30,9 @@ Requests:
 operation = new Operation({
 	request: findOneAndUpdate(collection, filter, update, options),
 	rollbackRequest: findOneAndUpdate(collection, filter, rallbackUpdate, options),
-	rallbackCondition: (result) => {return true;},
+	rollbackCondition: (result) => {return true;},
 	commitCondition: (result) => {return true;}
 })
 
-request.rallbackCondition(condition); // condition - (results) => {return boolean} - if conition is true after request executes, current transaction is being interrupted with new rollback transaction
-request.commitCondition(condition); // condition - (results) => {return boolean} - if conition is true after request executes, current transaction is being stopped on this request.
+rollbackCondition // (result) => {return boolean} - if conition is true after request executes, current transaction is being interrupted with new rollback transaction
+commitCondition // (result) => {return boolean} - if conition is true after request executes, current transaction is being stopped on this request.
