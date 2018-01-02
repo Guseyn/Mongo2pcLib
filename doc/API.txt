@@ -1,0 +1,39 @@
+
+###################################################
+
+transaction = Transaction(id, db, ...operations);
+transaction.invoke();
+transaction.onCommit(commitCallback); // transactionCallback - (results) => {}
+transaction.onRollback(rollbackCallback); // rollbackCallback - (results) => {}
+transaction.onRecovery(recoveryCallback); // recoveryCallback - (results) => {}
+recoveringProcess = RecoveringProcess(db, options); // recovery
+recoveringProcess.start();
+
+
+####################################################
+
+Requests: 
+	aggregate(collection, pipeline, options)
+	bulkWrite(collection, operations, options)
+	deleteMany(collection, filter, options)
+	deleteOne(collection, filter, options)
+	findOneAndDelete(collection, filter, options)
+	findOneAndReplace(collection, filter, replacement, options)
+	findOneAndUpdate(collection, filter, update, options)
+	initializeOrderedBulkOp(collection, options)
+	initializeUnorderedBulkOp(collection, options)
+	insertMany(collection, docs, options)
+	insertOne(collection, doc, options)
+	replaceOne(collection, filter, doc, options)
+	updateMany(collection, filter, update, options)
+	updateOne(collection, filter, update, options)
+
+operation = new Operation({
+	request: findOneAndUpdate(collection, filter, update, options),
+	rollbackRequest: findOneAndUpdate(collection, filter, rallbackUpdate, options),
+	rallbackCondition: (result) => {return true;},
+	commitCondition: (result) => {return true;}
+})
+
+request.rallbackCondition(condition); // condition - (results) => {return boolean} - if conition is true after request executes, current transaction is being interrupted with new rollback transaction
+request.commitCondition(condition); // condition - (results) => {return boolean} - if conition is true after request executes, current transaction is being stopped on this request.

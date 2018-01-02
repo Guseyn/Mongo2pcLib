@@ -1,0 +1,36 @@
+{
+  "name": "mongo2pclib",
+  "version": "1.0.0",
+  "description": "Pure OOP library for Node.js that simplify work with transactions in MongoDb via two phase commits.",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guseyn/Mongo2pcLib.git"
+  },
+  "keywords": [
+    "mongo",
+    "two",
+    "phase",
+    "commits",
+    "transactions",
+    "in",
+    "mongo"
+  ],
+  "author": "guseyn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Guseyn/Mongo2pcLib/issues"
+  },
+  "homepage": "https://github.com/Guseyn/Mongo2pcLib#readme",
+  "dependencies": {
+    "mongodb": "^3.0.1"
+  }
+}
