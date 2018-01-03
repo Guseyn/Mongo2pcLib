@@ -29,6 +29,16 @@ class Operation {
 		this.request.execute((err, result) => {
 			requestCallback(err, result);
 		});
+	executeRequest(transactionId, requestCallback) {
+		this.request.execute(transactionId, requestCallback);
+	}
+
+	unbindFromTransaction() {
+		this.request.unibindFromTransaction(transactionId);
+	}
+
+	requestLog() {
+		return this.request.log();
 	}
 
 }
