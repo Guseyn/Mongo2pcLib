@@ -52,7 +52,8 @@ module.exports.findOneAndUpdate = (collection, filter, update, options) => {
 				requestName: 'findOneAndUpdate',
 				args: [filter, update, options]
 			}
-		});
+		}
+	);
 };
 
 module.exports.initializeOrderedBulkOp = (collection, options) => {

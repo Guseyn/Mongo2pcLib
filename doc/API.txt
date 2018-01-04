@@ -1,13 +1,12 @@
 
 ###################################################
 
-transaction = Transaction(id, db, ...operations);
+transaction = Transaction(id, rollbackId, transactionsCollection, ...operations);
 transaction.invoke();
 transaction.onCommit(commitCallback); // transactionCallback - (results) => {}
 transaction.onRollback(rollbackCallback); // rollbackCallback - (results) => {}
-transaction.onRecovery(recoveryCallback); // recoveryCallback - (results) => {}
 recoveringProcess = RecoveringProcess(db, options); // recovery
-recoveringProcess.start();
+recoveringProcess.start(onTransactionRecoveredCallback() {});
 
 
 ####################################################
@@ -31,9 +30,11 @@ Requests:
 operation = new Operation({
 	request: findOneAndUpdate(collection, filter, update, options),
 	rollbackRequest: findOneAndUpdate(collection, filter, rallbackUpdate, options),
-	rallbackCondition: (result) => {return true;},
-	commitCondition: (result) => {return true;}
+	rallbackCondition: (operationNum, result) => {return true;},
+	commitCondition: (operationNum, result) => {return true;}
 })
 
-request.rallbackCondition(condition); // condition - (results) => {return boolean} - if conition is true after request executes, current transaction is being interrupted with new rollback transaction
-request.commitCondition(condition); // condition - (results) => {return boolean} - if conition is true after request executes, current transaction is being stopped on this request.
+request.rallbackCondition(operationNum, condition); // condition - (results) => {return boolean} - if conition is true after request executes, current transaction is being interrupted with new rollback transaction
+request.commitCondition(operationNum, condition); // condition - (results) => {return boolean} - if conition is true after request executes, current transaction is being stopped on this request.
+
+If rollback transaction fails then only recovery process can fix the problem, you can use error object for exploring what is wrong with operations in the transaction.

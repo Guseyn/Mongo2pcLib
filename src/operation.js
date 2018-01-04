@@ -3,19 +3,9 @@
 
 class Operation {
 
-	constructor({request, rollbackRequest, rollbackCondition, commitCondition}) {
+	constructor({request, rollbackRequest}) {
 		this.request = request;
 		this.rollbackRequest = rollbackRequest;
-		this.rollbackCondition = rollbackCondition || ((result) => {return false;});
-		this.commitCondition = commitCondition || ((result) => {return false;});
-	}
-
-	doNext(isOperationLast, result) {
-		return this.commitCondition(result) || !isOperationLast;
-	}
-
-	doRollback(result) {
-		return this.rollbackCondition(result);
 	}
 
 	rollbackOperation() {
@@ -29,7 +19,7 @@ class Operation {
 		this.request.execute(requestCallback);
 	}
 
-	unbindFromTransaction() {
+	unbindFromTransaction(transactionId) {
 		this.request.unibindFromTransaction(transactionId);
 	}
 
