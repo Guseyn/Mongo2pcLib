@@ -16,7 +16,7 @@ class Transaction {
 	}
 
 	invoke() {
-		if (this.operations.length === 0) {
+		if (this.transactionOperations.isEmpty()) {
 			this.transactionCallbacks.commit();
 		} else {
 			let initialTransactionLog = this.initialTransactionLog();
@@ -25,7 +25,7 @@ class Transaction {
 					new InvokedTransaction(
 						this.transactionDbState,
 						this.transactionOperations,
-						this.transactionCallbackSystem
+						this.transactionCallbacks
 					).start();
 				} else {
 					console.log('init error');
@@ -37,23 +37,20 @@ class Transaction {
 	}
 
 	initialTransactionLog() {
-		this.state = 'initial';
-		this.lastModified = new Date();
 		return {
 			_id: this.id,
-			state: this.state,
-			requestsLog: this.operations.map(operation => operation.requestLog()),
-			lastModified: this.lastModified,
-			operationNum: 0
+			state: 'initial',
+			requestsLog: this.transactionOperations.log(),
+			lastModified: new Date()
 		}
 	}
 
 	onRollback(callback) {
-		this.transactionCallbacks.rollbackCallback(callback);
+		this.transactionCallbacks.onRollback(callback);
 	}
 
 	onCommit(callback) {
-		this.transactionCallbacks.commitCallback(callback);
+		this.transactionCallbacks.onCommit(callback);
 	}
 
 }
