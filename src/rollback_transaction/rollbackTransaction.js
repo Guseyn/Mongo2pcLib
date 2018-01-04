@@ -3,21 +3,21 @@
 
 const TransactionDbState = require('./../transactionDbState');
 const TransactionOperations = require('./../transactionOperations');
-const TransactionCallbacks = require('./../transactionCallbacks');
+const RollbackTransactionCallbacks = require('./../rollbackTransactionCallbacks');
 
 const InvokedTransaction = require('./invokedTransaction');
 
-class Transaction {
+class RollbackTransaction {
 
-	constructor(id, rollbackId, transactionsCollection, ...operations) {
-		this.transactionDbState = new TransactionDbState(id, transactionsCollection);
-		this.transactionOperations = new TransactionOperations(operations, rollbackId);
-		this.transactionCallbacks = new TransactionCallbacks();
+	constructor(rollbackId, transactionsCollection, operations) {
+		this.transactionDbState = new TransactionDbState(rollbackId, transactionsCollection);
+		this.transactionOperations = new TransactionOperations(operations);
+		this.transactionCallbacks = new RollbackTransactionCallbacks();
 	}
 
 	invoke() {
 		if (this.transactionOperations.isEmpty()) {
-			this.transactionCallbacks.commit();
+			this.transactionCallbacks.commit(null);
 		} else {
 			let initialTransactionLog = this.initialTransactionLog();
 			this.transactionDbState.init(initialTransactionLog, (error, result) => {
@@ -28,9 +28,7 @@ class Transaction {
 						this.transactionCallbacks
 					).start();
 				} else {
-					console.log('init error');
-					console.log(error);
-					// canceledTransaction
+					this.transactionCallbacks.commit(error);
 				}
 			});
 		}
@@ -40,14 +38,10 @@ class Transaction {
 		return {
 			_id: this.id,
 			state: 'initial',
-			isRollback: false,
+			isRollback: true,
 			requestsLog: this.transactionOperations.log(),
 			lastModified: new Date()
 		}
-	}
-
-	onRollback(callback) {
-		this.transactionCallbacks.onRollback(callback);
 	}
 
 	onCommit(callback) {

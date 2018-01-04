@@ -1,5 +1,4 @@
-
-class CancelledTransaction {
+class AppliedTransaction {
 
 	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
 		this.transactionDbState = transactionDbState;
@@ -7,10 +6,10 @@ class CancelledTransaction {
 		this.transactionCallbacks = transactionCallbacks;
 	}
 
-	rollback() {
-		
+	finish(results) {
+		this.transactionCallbacks.commit(results);
 	}
 
 }
 
-module.exports = InvokedTransaction;
+module.exports = AppliedTransaction;
