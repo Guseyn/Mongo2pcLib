@@ -1,6 +1,6 @@
 class TransactionOperations {
 
-	constructor(rollbackId, ...operations) {
+	constructor(rollbackId, operations) {
 		this.rollbackId = rollbackId;
 		this.operations = operations;
 		this.currentOperationNum = 0;
@@ -15,7 +15,11 @@ class TransactionOperations {
 	}
 
 	isLast() {
-		this.currentOperationNum === this.operations.length - 1;
+		return this.currentOperationNum === this.operations.length - 1;
+	}
+
+	isEmpty() {
+		return this.operations.length === 0;
 	}
 
 	current() {
@@ -24,6 +28,10 @@ class TransactionOperations {
 
 	currentNum() {
 		return this.currentOperationNum;
+	}
+
+	log() {
+		return this.operations.map(operation => operation.requestLog());
 	}
 
 }
