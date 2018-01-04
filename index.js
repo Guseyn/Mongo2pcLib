@@ -20,6 +20,7 @@ MongoClient.connect(url, function(err, client) {
 
   const db = client.db(dbName);
   const accountCollections = db.collection('accounts');
+  const transactionsCollection = db.collection(`${dbName}-m2pc-transactions`);
   accountCollections.insertMany([{name: 'Anna', balance: 1000}, {name: 'Rob', balance: 1000}], (err, result) => {
     assert.equal(null, err);
     let updateOperation1 = new Operation({
@@ -30,10 +31,16 @@ MongoClient.connect(url, function(err, client) {
       request: findOneAndUpdate(accountCollections, {name: 'Rob'}, {$inc: {balance: 100}}, {returnOriginal: false}),
       rollbackRequest: findOneAndUpdate(accountCollections, {name: 'Rob'}, {$inc: {balance: -100}}, {returnOriginal: false})
     });
-    let transaction = new Transaction(new ObjectID(), db, updateOperation1, updateOperation2);
+    let transactionId = new ObjectID();
+    let rollbackTransactionId = new ObjectID();
+    let transaction = new Transaction(transactionId, rollbackTransactionId, transactionsCollection, updateOperation1, updateOperation2);
     transaction.onCommit((results) => {
       console.log(results);
       client.close();
+    });
+    transaction.onRollback((error, results) => {
+      console.log(error);
+      console.log(results);
     });
     transaction.invoke();
   });
