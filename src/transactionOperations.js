@@ -1,9 +1,9 @@
 class TransactionOperations {
 
-	constructor(rollbackId, operations) {
-		this.rollbackId = rollbackId;
+	constructor(operations, rollbackId, operationNum) {
 		this.operations = operations;
-		this.currentOperationNum = 0;
+		this.rollbackId = rollbackId;
+		this.currentOperationNum = operationNum || 0;
 	}
 
 	executeCurrent(executeCallback) {
@@ -28,6 +28,14 @@ class TransactionOperations {
 
 	currentNum() {
 		return this.currentOperationNum;
+	}
+
+	sliceByCurrentNum() {
+		return this.operations.slice(0, this.currentNum());
+	}
+
+	rollbackTransactionOprations() {
+		// TO DO: first
 	}
 
 	log() {
