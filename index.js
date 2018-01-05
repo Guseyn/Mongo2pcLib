@@ -2,8 +2,8 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const assert = require('assert');
 
-const Transaction = require('./src/transaction/transaction');
-const Operation = require('./src/operation');
+const Transaction = require('./src/forward/transaction/transaction');
+const Operation = require('./src/forward/operation');
 
 const findOneAndUpdate = require('./src/request').findOneAndUpdate;
 
@@ -19,15 +19,15 @@ MongoClient.connect(url, function(err, client) {
   console.log("Connected successfully to server");
 
   const db = client.db(dbName);
-  const accountCollections = db.collection('accounts');
-  const transactionsCollection = db.collection(`${dbName}-transactions`);
+  const accountCollections = db.collection('cache-accounts');
+  const transactionsCollection = db.collection(`${dbName}-my-transactions`);
 
-  accountCollections.insertMany([
+  /*accountCollections.insertMany([
     {name: 'Ross', balance: 1000},
     {name: 'Rachel', balance: 1000
   }], (err, result) => {
-    assert.equal(null, err);
-    
+    assert.equal(null, err);*/
+
     let transferFromRoss = new Operation({
       request: findOneAndUpdate(
         accountCollections,
@@ -60,7 +60,8 @@ MongoClient.connect(url, function(err, client) {
     let transactionId = new ObjectID();
     let rollbackTransactionId = new ObjectID();
     let transaction = new Transaction(
-      transactionId, rollbackTransactionId, transactionsCollection,
+      db, transactionsCollection,
+      transactionId, rollbackTransactionId,
       transferFromRoss, transferToRachel
     );
     
@@ -76,7 +77,7 @@ MongoClient.connect(url, function(err, client) {
 
     transaction.invoke();
 
-  });
+  //});
   
   
   //console.log(transaction);

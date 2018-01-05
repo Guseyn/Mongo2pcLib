@@ -10,7 +10,7 @@ class PendingTransaction {
 	}
 
 	upgrade(results) {
-		this.transactionOperations.executeCurrent((error, result) => {
+		this.transactionOperations.executeCurrent(results, (error, result) => {
 			if (error == null) {
 				results.push(result);
 				if (this.transactionOperations.isLast()) {
