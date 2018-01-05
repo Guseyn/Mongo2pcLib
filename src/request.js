@@ -8,12 +8,20 @@ class Request {
 		this.logger = logger;
 	}
 
-	execute(requestCallback) {
+	execute(results, requestCallback) {
 		this.executor(requestCallback);
 	}
 
-	log() {
-		return this.logger();
+	args() {
+		return this.logger().args;
+	}
+
+	log(funcArgIds) {
+		let log = this.logger();
+		log.args = log.args.map((arg, index) => {
+			return typeof(arg) === 'function' ? funcArgIds[index] : arg;
+		});
+		return log;
 	}
 
 }

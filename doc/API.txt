@@ -1,10 +1,17 @@
 
-###################################################
+####################################################
 
-transaction = Transaction(id, rollbackId, transactionsCollection, ...operations);
+transactionConfig = new TransactionConfig(
+	db, transactionsCollection, id, rollbackId
+);
+transactionConfig.onCommit(commitCallback); // transactionCallback - (results) => {}
+transactionConfig.onRollback(rollbackCallback); // rollbackCallback - (results) => {}
+transaction = new Transaction(transactionConfig, ...operations);
+
 transaction.invoke();
-transaction.onCommit(commitCallback); // transactionCallback - (results) => {}
-transaction.onRollback(rollbackCallback); // rollbackCallback - (results) => {}
+
+####################################################
+
 recoveringProcess = RecoveringProcess(db, options); // recovery
 recoveringProcess.start(onTransactionRecoveredCallback() {});
 

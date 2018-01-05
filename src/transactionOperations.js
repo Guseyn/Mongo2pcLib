@@ -1,13 +1,21 @@
+'use strict'
+
 class TransactionOperations {
 
-	constructor(operations, rollbackId, operationNum) {
+	constructor({
+		transactionId,
+		rollbackTransactionId,
+		operations,
+		operationNum
+	}) {
+		this.transactionId = transactionId;
+		this.rollbackTransactionId = rollbackTransactionId;
 		this.operations = operations;
-		this.rollbackId = rollbackId;
 		this.currentOperationNum = operationNum || 0;
 	}
 
-	executeCurrent(executeCallback) {
-		this.current().executeRequest(executeCallback);
+	executeCurrent(results, executeCallback) {
+		this.current().executeRequest(results, executeCallback);
 	}
 
 	inc() {
@@ -35,12 +43,24 @@ class TransactionOperations {
 	}
 
 	rollbackTransactionOprations() {
-		// TO DO: first
+		if (this.rollbackTransactionId) {
+			return new TransactionOperations(sliceByCurrentNum().map(operation => operation.rollbackOperation()));
+		} else {
+			throw new Error('can not be applied to a transaction without a provided rollbackTransactionId');
+		}
 	}
 
-	log() {
-		return this.operations.map(operation => operation.requestLog());
+	initialTransactionLog() {
+		return {
+			_id: this.transactionId,
+			rollbackId: this.rollbackTransactionId,
+			state: 'initial',
+			requestsLog: this.operations.map(operation => operation.requestLog()),
+			rollbackRequestsLog: this.operations.map(operation => operation.rollbackRequestLog()),
+			lastModified: new Date()
+		}
 	}
+
 
 }
 

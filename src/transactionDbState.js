@@ -1,7 +1,7 @@
 class TransactionDbState {
 
-	constructor(id, collection) {
-		this.id = id;
+	constructor(transactionId, collection) {
+		this.transactionId = transactionId;
 		this.collection = collection;
 	}
 
@@ -11,7 +11,7 @@ class TransactionDbState {
 
 	start(startCallback) {
 		this.collection.findOneAndUpdate(
-			{_id: this.id, state: 'initial'},
+			{_id: this.transactionId, state: 'initial'},
 			{
 				$set: {state: 'pending', operationNum: 0, results: []},
 				$currentDate: {lastModified: true}
@@ -23,7 +23,7 @@ class TransactionDbState {
 
 	upgrade(result, operationNum, upgradeCallback) {
 		this.collection.findOneAndUpdate(
-			{_id: this.id, state: 'pending', operationNum: operationNum},
+			{_id: this.transactionId, state: 'pending', operationNum: operationNum},
 			{
 				$inc: {operationNum: 1},
 				$push: {results: result},
@@ -36,7 +36,7 @@ class TransactionDbState {
 
 	apply(result, operationNum, appliedCallback) {
 		this.collection.findOneAndUpdate(
-			{_id: this.id, state: 'pending', operationNum: operationNum},
+			{_id: this.transactionId, state: 'pending', operationNum: operationNum},
 			{
 				$set: {state: 'applied'},
 				$inc: {operationNum: 1},
@@ -49,7 +49,7 @@ class TransactionDbState {
 
 	cancel(operationNum, cancelCallback) {
 		this.collection.findOneAndUpdate(
-			{_id: this.id, state: 'pending', operationNum: operationNum},
+			{_id: this.transactionId, state: 'pending', operationNum: operationNum},
 			{
 				$set: {state: 'canceling'},
 				$currentDate: {lastModified: true}
