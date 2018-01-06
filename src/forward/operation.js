@@ -20,12 +20,20 @@ class Operation {
 		this.request.execute(results, requestCallback);
 	}
 
-	requestLog(funcArgIds) {
-		return this.request.log(funcArgIds);
+	saveRequestFunctionalArgsIntoSystemJS(systemJSCollection, transactionId, saveCallback) {
+		this.rollbackRequest.saveFunctionalArgsIntoSystemJS(systemJSCollection, transactionId, saveCallback);
 	}
 
-	rollbackRequestLog(funcArgIds) {
-		return this.rollbackRequest.log(funcArgIds);
+	saveRollbackRequestFunctionalArgsIntoSystemJS(systemJSCollection, transactionId, saveCallback) {
+		this.rollbackRequest.saveFunctionalArgsIntoSystemJS(systemJSCollection, transactionId, saveCallback);
+	}
+
+	requestLog() {
+		return this.request.log();
+	}
+
+	rollbackRequestLog() {
+		return this.rollbackRequest.log();
 	}
 
 }

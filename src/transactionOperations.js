@@ -44,16 +44,59 @@ class TransactionOperations {
 
 	rollbackTransactionOprations() {
 		if (this.rollbackTransactionId) {
-			return new TransactionOperations(sliceByCurrentNum().map(operation => operation.rollbackOperation()));
+			return new TransactionOperations({
+				transactionId: this.rollbackTransactionId,
+				operations: sliceByCurrentNum().map(operation => operation.rollbackOperation())
+			});
 		} else {
 			throw new Error('can not be applied to a transaction without a provided rollbackTransactionId');
 		}
 	}
 
+	saveFunctionalArgumentsIntoSystemJS(systemJSCollection, saveCallback) {
+		let savedOperationsCount = 0;
+		this.operations.forEach((operation, index) => {
+			operation.saveRequestFunctionalArgsIntoSystemJS(systemJSCollection, this.transactionId, (error) => {
+
+				if (error != null) {
+					throw new Error(`error while saving request functional args of operation with number ${index}, error:${error}`);
+				}
+
+				if (this.rollbackTransactionId) {
+					
+					operation.saveRollbackRequestFunctionalArgsIntoSystemJS(systemJSCollection, this.rollbackTransactionId, (error) => {
+						
+						if (error != null) {
+							throw new Error(`error while saving rollback request functional args of operation with number ${index}, error:${error}`);
+						}
+
+						savedOperationsCount += 1;
+						if (savedOperationsCount === this.operations.length - 1) {
+							saveCallback();
+						}
+
+					});
+
+				} else {
+					
+					savedOperationsCount += 1;
+					if (savedOperationsCount === this.operations.length - 1) {
+						saveCallback();
+					}
+
+				}
+			});
+		});
+	}
+
+	removeFunctionalArgsFromSystemJS(systemJSCollection, removeCallback) {
+		systemJSCollection.deleteMany({_id: this.transactionId}, removeCallback);
+	}
+
 	initialTransactionLog() {
 		return {
 			_id: this.transactionId,
-			rollbackId: this.rollbackTransactionId,
+			rollbackId: this.rollbackTransactionId || null,
 			state: 'initial',
 			requestsLog: this.operations.map(operation => operation.requestLog()),
 			rollbackRequestsLog: this.operations.map(operation => operation.rollbackRequestLog()),

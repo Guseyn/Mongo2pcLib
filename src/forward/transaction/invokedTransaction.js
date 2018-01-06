@@ -3,7 +3,8 @@ const PendingTransaction = require('./pendingTransaction');
 
 class InvokedTransaction {
 
-	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
+	constructor(db, transactionDbState, transactionOperations, transactionCallbacks) {
+		this.db = db,
 		this.transactionDbState = transactionDbState;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;
@@ -13,6 +14,7 @@ class InvokedTransaction {
 		this.transactionDbState.start((error, result) => {
 			if (error == null) {
 				new PendingTransaction(
+					this.db,
 					this.transactionDbState,
 					this.transactionOperations,
 					this.transactionCallbacks
