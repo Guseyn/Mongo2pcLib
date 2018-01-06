@@ -46,7 +46,9 @@ MongoClient.connect(url, function(err, client) {
       request: findOneAndUpdate(
         accountCollections,
         {name: 'Rachel'},
-        {$inc: {balance: 100}},
+        (results) => {
+          return {$inc: {balance: 100}};
+        },
         {returnOriginal: false}
       ),
       rollbackRequest: findOneAndUpdate(

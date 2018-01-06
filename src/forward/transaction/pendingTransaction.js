@@ -3,7 +3,8 @@ const AppliedTransaction = require('./appliedTransaction');
 
 class PendingTransaction {
 
-	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
+	constructor(db, transactionDbState, transactionOperations, transactionCallbacks) {
+		this.db = db;
 		this.transactionDbState = transactionDbState;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;
@@ -11,13 +12,17 @@ class PendingTransaction {
 
 	upgrade(results) {
 		this.transactionOperations.executeCurrent(results, (error, result) => {
+
 			if (error == null) {
+
 				results.push(result);
 				if (this.transactionOperations.isLast()) {
+
 					this.transactionDbState.apply(result, this.transactionOperations.currentNum(), (error, result) => {
 						if (error == null) {
 							this.transactionOperations.inc();
 							new AppliedTransaction(
+								this.db,
 								this.transactionDbState,
 								this.transactionOperations,
 								this.transactionCallbacks
@@ -28,11 +33,14 @@ class PendingTransaction {
 							// cancel transaction
 						}
 					});
+
 				} else {
+
 					this.transactionDbState.upgrade(result, this.transactionOperations.currentNum(), (error, result) => {
 						if (error == null) {
 							this.transactionOperations.inc();
 							new PendingTransaction(
+								this.db,
 								this.transactionDbState,
 								this.transactionOperations,
 								this.transactionCallbacks
@@ -43,6 +51,7 @@ class PendingTransaction {
 							// cancel transaction
 						}
 					});
+
 				}
 			} else {
 				console.log('upgrade pending transaction error');

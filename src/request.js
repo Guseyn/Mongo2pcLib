@@ -3,25 +3,72 @@
 
 class Request {
 
-	constructor(executor, logger) {
-		this.executor = executor;
-		this.logger = logger;
+	constructor(collection, methodName, ...args) {
+		this.collection = collection;
+		this.methodName = methodName;
+		this.args = args; // objects, functions
 	}
 
 	execute(results, requestCallback) {
-		this.executor(requestCallback);
-	}
-
-	args() {
-		return this.logger().args;
-	}
-
-	log(funcArgIds) {
-		let log = this.logger();
-		log.args = log.args.map((arg, index) => {
-			return typeof(arg) === 'function' ? funcArgIds[index] : arg;
+		
+		let appliedArgs = this.args.map((arg) => {
+			return typeof(arg) === 'function' ? arg(results) : arg;
 		});
-		return log;
+		appliedArgs.push(requestCallback);
+
+		this.collection[this.methodName].apply(this.collection, appliedArgs);
+	}
+
+	saveFunctionalArgsIntoSystemJS(systemJSCollection, transactionId, saveCallback) {
+
+		let functionalArgDocs = this.args
+			.filter(arg => typeof(arg) === 'function')
+			.map((arg) => {
+				return {
+					value: arg,
+					transactionId: transactionId
+				}
+			});
+		
+		if (functionalArgDocs.length !== 0) {
+
+			systemJSCollection.insertMany(functionalArgDocs, (error, result) => {
+			
+				if (error == null) {
+					this.setLogArgsBySavedFunctionalArgsIntoSystemJSResult(result);						
+				}
+
+				saveCallback(error);
+			});
+
+		} else {
+			
+			saveCallback(null);
+		
+		}
+
+	}
+
+	setLogArgsBySavedFunctionalArgsIntoSystemJSResult(result) {
+		let argCount = 0;
+		this.loggedArgs = [];
+		this.args.forEach((arg) => {
+			let pushedArg;
+			if (typeof(arg) === 'function') {
+				pushedArg = result.insertedIds[argCount];
+				argCount += 1;
+			} else {
+				pushedArg = arg;
+			}
+			loggedArgs.push(pushedArg);
+		});
+	}
+
+	log() {
+		return {
+			methodName: this.methodName,
+			args: this.loggedArgs || this.args
+		}
 	}
 
 }
@@ -51,17 +98,7 @@ module.exports.findOneAndReplace = (collection, filter, replacement, options) =>
 };
 
 module.exports.findOneAndUpdate = (collection, filter, update, options) => {
-	return new Request(
-		(requestCallback) => {
-			collection.findOneAndUpdate(filter, update, options, requestCallback);
-		}, 
-		() => {
-			return {
-				requestName: 'findOneAndUpdate',
-				args: [filter, update, options]
-			}
-		}
-	);
+	return new Request(collection, 'findOneAndUpdate', filter, update, options);
 };
 
 module.exports.initializeOrderedBulkOp = (collection, options) => {
