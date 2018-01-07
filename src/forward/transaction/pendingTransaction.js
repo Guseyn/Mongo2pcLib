@@ -3,8 +3,7 @@ const AppliedTransaction = require('./appliedTransaction');
 
 class PendingTransaction {
 
-	constructor(db, transactionDbState, transactionOperations, transactionCallbacks) {
-		this.db = db;
+	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
 		this.transactionDbState = transactionDbState;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;
@@ -20,11 +19,9 @@ class PendingTransaction {
 
 					this.transactionDbState.apply(result, this.transactionOperations.currentNum(), (error, result) => {
 						if (error == null) {
-							this.transactionOperations.inc();
 							new AppliedTransaction(
-								this.db,
 								this.transactionDbState,
-								this.transactionOperations,
+								this.transactionOperations.next(),
 								this.transactionCallbacks
 							).finish(results);
 						} else {
@@ -38,11 +35,9 @@ class PendingTransaction {
 
 					this.transactionDbState.upgrade(result, this.transactionOperations.currentNum(), (error, result) => {
 						if (error == null) {
-							this.transactionOperations.inc();
 							new PendingTransaction(
-								this.db,
 								this.transactionDbState,
-								this.transactionOperations,
+								this.transactionOperations.next(),
 								this.transactionCallbacks
 							).upgrade(results);
 						} else {

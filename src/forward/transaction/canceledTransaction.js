@@ -1,8 +1,7 @@
 
 class CancelledTransaction {
 
-	constructor(db, transactionDbState, transactionOperations, transactionCallbacks) {
-		this.db = db,
+	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
 		this.transactionDbState = transactionDbState;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;

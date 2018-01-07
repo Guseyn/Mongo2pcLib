@@ -61,10 +61,13 @@ MongoClient.connect(url, function(err, client) {
 
     let transactionId = new ObjectID();
     let rollbackTransactionId = new ObjectID();
+    let transactionConfig = {
+      transactionsCollection,
+      transactionId,
+      rollbackTransactionId
+    };
     let transaction = new Transaction(
-      db, transactionsCollection,
-      transactionId, rollbackTransactionId,
-      transferFromRoss, transferToRachel
+      transactionConfig, transferFromRoss, transferToRachel
     );
     
     transaction.onCommit((results) => {

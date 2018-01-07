@@ -5,8 +5,7 @@ const InvokedTransaction = require('./invokedTransaction');
 
 class PreparedTransaction {
 
-	constructor(db, transactionDbState, transactionOperations, transactionCallbacks) {
-		this.db = db;
+	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
 		this.transactionDbState = transactionDbState;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;
@@ -20,7 +19,6 @@ class PreparedTransaction {
 			this.transactionDbState.init(initialTransactionLog, (error, result) => {
 				if (error == null) {
 					new InvokedTransaction(
-						this.db,
 						this.transactionDbState,
 						this.transactionOperations,
 						this.transactionCallbacks
