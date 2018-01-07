@@ -8,8 +8,7 @@ const PreparedTransaction = require('./preparedTransaction');
 
 class Transaction {
 
-	constructor(db, transactionsCollection, id, rollbackId, ...operations) {
-		this.db = db;
+	constructor({transactionsCollection, id, rollbackId}, ...operations) {
 		this.transactionDbState = new TransactionDbState(id, transactionsCollection);
 		this.transactionOperations = new TransactionOperations({
 			transactionId: id,
@@ -25,7 +24,7 @@ class Transaction {
 	}
 
 	prepare() {
-		this.db.collection('system.js', (error, systemJSCollection) => {
+		this.transactionDbState.systemJS((error, systemJSCollection) => {
 			
 			if (error != null) {
 				throw new Error(`cannot access system.js collection: ${error}`);
@@ -33,7 +32,6 @@ class Transaction {
 
 			this.transactionOperations.saveFunctionalArgumentsIntoSystemJS(systemJSCollection, () => {
 				new PreparedTransaction(
-					this.db,
 					this.transactionDbState,
 					this.transactionOperations,
 					this.transactionCallbacks

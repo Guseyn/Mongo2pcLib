@@ -18,8 +18,13 @@ class TransactionOperations {
 		this.current().executeRequest(results, executeCallback);
 	}
 
-	inc() {
-		this.currentOperationNum += 1;
+	next() {
+		return new TransactionOperations({
+			transactionId: this.transactionId,
+			rollbackTransactionId: this.rollbackTransactionId,
+			operations: this.operations,
+			operationNum: this.currentOperationNum + 1
+		});
 	}
 
 	isLast() {
@@ -54,8 +59,11 @@ class TransactionOperations {
 	}
 
 	saveFunctionalArgumentsIntoSystemJS(systemJSCollection, saveCallback) {
+		
 		let savedOperationsCount = 0;
+		
 		this.operations.forEach((operation, index) => {
+
 			operation.saveRequestFunctionalArgsIntoSystemJS(systemJSCollection, this.transactionId, (error) => {
 
 				if (error != null) {
@@ -86,7 +94,9 @@ class TransactionOperations {
 
 				}
 			});
+
 		});
+		
 	}
 
 	removeFunctionalArgsFromSystemJS(systemJSCollection, removeCallback) {

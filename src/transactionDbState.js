@@ -1,3 +1,5 @@
+'use strict'
+
 class TransactionDbState {
 
 	constructor(transactionId, collection) {
@@ -57,6 +59,10 @@ class TransactionDbState {
 			{returnOriginal: false},
 			cancelCallback
 		);
+	}
+
+	systemJS(onAccess) {
+		this.collection.s.db.collection('system.js', onAccess);
 	}
 
 }

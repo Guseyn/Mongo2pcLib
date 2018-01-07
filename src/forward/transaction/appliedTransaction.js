@@ -1,14 +1,13 @@
 class AppliedTransaction {
 
-	constructor(db, transactionDbState, transactionOperations, transactionCallbacks) {
-		this.db = db;
+	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
 		this.transactionDbState = transactionDbState;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;
 	}
 
 	finish(results) {
-		this.db.collection('system.js', (error, systemJSCollection) => {
+		this.transactionDbState.systemJS((error, systemJSCollection) => {
 
 			if (error != null) {
 				throw new Error(`cannot access system.js collection: ${error}`);

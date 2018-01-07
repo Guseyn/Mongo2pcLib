@@ -1,12 +1,12 @@
 
 ####################################################
 
-transactionConfig = new TransactionConfig(
-	db, transactionsCollection, id, rollbackId
+transactionEnvironment = new TransactionEnvironment(
+	transactionsCollection, id, rollbackId
 );
-transactionConfig.onCommit(commitCallback); // transactionCallback - (results) => {}
-transactionConfig.onRollback(rollbackCallback); // rollbackCallback - (results) => {}
-transaction = new Transaction(transactionConfig, ...operations);
+transactionEnvironment.onCommit(commitCallback); // transactionCallback - (results) => {}
+transactionEnvironment.onRollback(rollbackCallback); // rollbackCallback - (results) => {}
+transaction = new Transaction(transactionEnvironment, ...operations);
 
 transaction.invoke();
 
