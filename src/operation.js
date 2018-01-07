@@ -1,19 +1,15 @@
 
 'use strict'
 
-const RollbackOperation = require('./../rollback/rollbackOperation');
-
 class Operation {
 
-	constructor({request, rollbackRequest}) {
+	constructor(request, rollbackRequest) {
 		this.request = request;
 		this.rollbackRequest = rollbackRequest;
 	}
 
 	rollbackOperation() {
-		return new RollbackOperation({
-			request: this.rollbackRequest
-		});
+		//TODO
 	}
 
 	executeRequest(results, requestCallback) {
@@ -37,6 +33,5 @@ class Operation {
 	}
 
 }
-
 
 module.exports = Operation;

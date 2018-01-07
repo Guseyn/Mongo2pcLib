@@ -3,9 +3,9 @@
 
 class Request {
 
-	constructor(collection, methodName, ...args) {
-		this.collection = collection;
+	constructor(methodName, collection, ...args) {
 		this.methodName = methodName;
+		this.collection = collection;
 		this.args = args; // objects, functions
 	}
 
@@ -60,7 +60,7 @@ class Request {
 			} else {
 				pushedArg = arg;
 			}
-			loggedArgs.push(pushedArg);
+			this.loggedArgs.push(pushedArg);
 		});
 	}
 
@@ -73,59 +73,61 @@ class Request {
 
 }
 
-module.exports.aggregate = (collection, pipeline, options) => {
+module.exports = Request;
+
+var aggregate = (collection, pipeline, options) => {
 
 };
 
-module.exports.bulkWrite = (collection, operations, options) => {
+var bulkWrite = (collection, operations, options) => {
 
 };
 
-module.exports.deleteMany = (collection, filter, options) => {
+var deleteMany = (collection, filter, options) => {
 
 };
 
-module.exports.deleteOne = (collection, filter, options) => {
+var deleteOne = (collection, filter, options) => {
 
 };
 
-module.exports.findOneAndDelete = (collection, filter, options) => {
+var findOneAndDelete = (collection, filter, options) => {
 
 };
 
-module.exports.findOneAndReplace = (collection, filter, replacement, options) => {
+var findOneAndReplace = (collection, filter, replacement, options) => {
 
 };
 
-module.exports.findOneAndUpdate = (collection, filter, update, options) => {
-	return new Request(collection, 'findOneAndUpdate', filter, update, options);
+var findOneAndUpdate = (collection, filter, update, options) => {
+	return new Request('findOneAndUpdate', collection, filter, update, options);
 };
 
-module.exports.initializeOrderedBulkOp = (collection, options) => {
-
-};
-
-module.exports.initializeUnorderedBulkOp = (collection, options) => {
+var initializeOrderedBulkOp = (collection, options) => {
 
 };
 
-module.exports.insertMany = (collection, docs, options) => {
+var initializeUnorderedBulkOp = (collection, options) => {
 
 };
 
-module.exports.insertOne = (collection, doc, options) => {
+var insertMany = (collection, docs, options) => {
 
 };
 
-module.exports.replaceOne = (collection, filter, doc, options) => {
+var insertOne = (collection, doc, options) => {
 
 };
 
-module.exports.updateMany = (collection, filter, update, options) => {
+var replaceOne = (collection, filter, doc, options) => {
 
 };
 
-module.exports.updateOne = (collection, filter, update, options) => {
+var updateMany = (collection, filter, update, options) => {
+
+};
+
+var updateOne = (collection, filter, update, options) => {
 
 };
 

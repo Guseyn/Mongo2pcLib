@@ -2,29 +2,18 @@
 
 class TransactionOperations {
 
-	constructor({
-		transactionId,
-		rollbackTransactionId,
-		operations,
-		operationNum
-	}) {
-		this.transactionId = transactionId;
-		this.rollbackTransactionId = rollbackTransactionId;
+	constructor(...operations) {
 		this.operations = operations;
-		this.currentOperationNum = operationNum || 0;
+		this.currentOperationNum = 0;
 	}
 
 	executeCurrent(results, executeCallback) {
 		this.current().executeRequest(results, executeCallback);
 	}
 
-	next() {
-		return new TransactionOperations({
-			transactionId: this.transactionId,
-			rollbackTransactionId: this.rollbackTransactionId,
-			operations: this.operations,
-			operationNum: this.currentOperationNum + 1
-		});
+	next(num) {
+		this.currentOperationNum += num || 1;
+		return this;
 	}
 
 	isLast() {
@@ -48,72 +37,84 @@ class TransactionOperations {
 	}
 
 	rollbackTransactionOprations() {
-		if (this.rollbackTransactionId) {
-			return new TransactionOperations({
-				transactionId: this.rollbackTransactionId,
-				operations: sliceByCurrentNum().map(operation => operation.rollbackOperation())
-			});
-		} else {
-			throw new Error('can not be applied to a transaction without a provided rollbackTransactionId');
-		}
+			 //TODO: return new transaction with operations as sliceByCurrentNum().map(operation => operation.rollbackOperation())
 	}
 
-	saveFunctionalArgumentsIntoSystemJS(systemJSCollection, saveCallback) {
+	saveFunctionalArgumentsIntoSystemJS(systemJSCollection, transactionId, rollbackTransactionId, saveCallback) {
 		
 		let savedOperationsCount = 0;
+		let operationsLength = this.operations.length;
 		
 		this.operations.forEach((operation, index) => {
+			(function(operation, index) {
 
-			operation.saveRequestFunctionalArgsIntoSystemJS(systemJSCollection, this.transactionId, (error) => {
+				operation.saveRequestFunctionalArgsIntoSystemJS(systemJSCollection, transactionId, (error) => {
 
-				if (error != null) {
-					throw new Error(`error while saving request functional args of operation with number ${index}, error:${error}`);
-				}
+					if (error != null) {
+						throw new Error(`error while saving request functional args of operation with number ${index}, error:${error}`);
+					}
 
-				if (this.rollbackTransactionId) {
+					if (rollbackTransactionId != null) {
 					
-					operation.saveRollbackRequestFunctionalArgsIntoSystemJS(systemJSCollection, this.rollbackTransactionId, (error) => {
+						operation.saveRollbackRequestFunctionalArgsIntoSystemJS(systemJSCollection, rollbackTransactionId, (error) => {
 						
-						if (error != null) {
-							throw new Error(`error while saving rollback request functional args of operation with number ${index}, error:${error}`);
-						}
+							if (error != null) {
+								throw new Error(`error while saving rollback request functional args of operation with number ${index}, error:${error}`);
+							}
 
+							savedOperationsCount += 1;
+							if (savedOperationsCount === operationsLength - 1) {
+								saveCallback();
+							}
+
+						});
+
+					} else {
+					
 						savedOperationsCount += 1;
-						if (savedOperationsCount === this.operations.length - 1) {
+						if (savedOperationsCount === operationsLength - 1) {
 							saveCallback();
 						}
 
-					});
-
-				} else {
-					
-					savedOperationsCount += 1;
-					if (savedOperationsCount === this.operations.length - 1) {
-						saveCallback();
 					}
-
-				}
-			});
-
+				});
+			
+			})(operation, index);
 		});
 		
 	}
 
-	removeFunctionalArgsFromSystemJS(systemJSCollection, removeCallback) {
-		systemJSCollection.deleteMany({_id: this.transactionId}, removeCallback);
+	removeFunctionalArgsFromSystemJS(systemJSCollection, transactionId, rollbackTransactionId, removeCallback) {
+
+		systemJSCollection.deleteMany({transactionId: transactionId}, (error, result) => {
+
+			if (error != null) {
+				throw new Error(`error while removing request functional args of operations`);
+			}
+
+			if (rollbackTransactionId != null) {
+				
+				systemJSCollection.deleteMany({transactionId: rollbackTransactionId}, (error, result) => {
+					
+					if (error != null) {
+						throw new Error(`error while removing rollback request functional args of operations`);
+					}
+
+					removeCallback();
+
+				});
+			}
+
+		});
 	}
 
-	initialTransactionLog() {
-		return {
-			_id: this.transactionId,
-			rollbackId: this.rollbackTransactionId || null,
-			state: 'initial',
-			requestsLog: this.operations.map(operation => operation.requestLog()),
-			rollbackRequestsLog: this.operations.map(operation => operation.rollbackRequestLog()),
-			lastModified: new Date()
-		}
+	requestLog() {
+		return this.operations.map(operation => operation.requestLog());
 	}
 
+	rollbackRequestLog() {
+		return this.operations.map(operation => operation.rollbackRequestLog());
+	}
 
 }
 
