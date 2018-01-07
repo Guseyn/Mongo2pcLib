@@ -1,10 +1,11 @@
 'use strict'
 
-class TransactionDbState {
+class TransactionEnvironment {
 
-	constructor(transactionId, collection) {
-		this.transactionId = transactionId;
+	constructor(collection, transactionId, rollbackTansactionId) {
 		this.collection = collection;
+		this.transactionId = transactionId;
+		this.rollbackTansactionId = rollbackTansactionId;
 	}
 
 	init(initialTransactionLog, initCallback) {
@@ -62,9 +63,23 @@ class TransactionDbState {
 	}
 
 	systemJS(onAccess) {
-		this.collection.s.db.collection('system.js', onAccess);
+		this.collection.s.db.collection('system.js', (error, collection) => {
+			onAccess(error, collection, this.transactionId, this.rollbackTansactionId);
+		});
 	}
+
+	initialTransactionLog(operations) {
+		return {
+			_id: this.transactionId,
+			rollbackId: this.rollbackTransactionId || null,
+			state: 'initial',
+			requestsLog: operations.requestLog(),
+			rollbackRequestsLog: operations.rollbackRequestLog(),
+			lastModified: new Date()
+		}
+	}
+
 
 }
 
-module.exports = TransactionDbState;
+module.exports = TransactionEnvironment;

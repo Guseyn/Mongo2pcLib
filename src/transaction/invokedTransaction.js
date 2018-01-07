@@ -3,17 +3,17 @@ const PendingTransaction = require('./pendingTransaction');
 
 class InvokedTransaction {
 
-	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
-		this.transactionDbState = transactionDbState;
+	constructor(transactionEnvironment, transactionOperations, transactionCallbacks) {
+		this.transactionEnvironment = transactionEnvironment;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;
 	}
 
 	start() {
-		this.transactionDbState.start((error, result) => {
+		this.transactionEnvironment.start((error, result) => {
 			if (error == null) {
 				new PendingTransaction(
-					this.transactionDbState,
+					this.transactionEnvironment,
 					this.transactionOperations,
 					this.transactionCallbacks
 				).upgrade([]);

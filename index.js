@@ -2,10 +2,14 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const assert = require('assert');
 
-const Transaction = require('./src/forward/transaction/transaction');
-const Operation = require('./src/forward/operation');
-
-const findOneAndUpdate = require('./src/request').findOneAndUpdate;
+const Transaction = require('./src/transaction/transaction');
+const TransactionEnvironment = require('./src/transactionEnvironment');
+const TransactionOperations = require('./src/transactionOperations');
+const TransactionCallbacks = require('./src/transactionCallbacks');
+const OnCommit = require('./src/onCommit');
+const OnRollback = require('./src/onRollback');
+const Operation = require('./src/operation');
+const Request = require('./src/request');
 
 // Connection URL
 const url = 'mongodb://localhost:27017';
@@ -28,59 +32,60 @@ MongoClient.connect(url, function(err, client) {
   }], (err, result) => {
     assert.equal(null, err);*/
 
-    let transferFromRoss = new Operation({
-      request: findOneAndUpdate(
-        accountCollections,
+    let transferFromRoss = new Operation(
+      new Request('findOneAndUpdate', accountCollections,
         {name: 'Ross'},
         {$inc: {balance: -100}},
         {returnOriginal: false}
       ),
-      rollbackRequest: findOneAndUpdate(
-        accountCollections,
+      new Request('findOneAndUpdate', accountCollections,
         {name: 'Ross'},
         {$inc: {balance: 100}},
-        {returnOriginal: false})
-    });
+        {returnOriginal: false}
+      )
+    );
     
-    let transferToRachel = new Operation({
-      request: findOneAndUpdate(
-        accountCollections,
+    let transferToRachel = new Operation(
+      new Request('findOneAndUpdate', accountCollections,
         {name: 'Rachel'},
         (results) => {
-          return {$inc: {balance: 100}};
+          return {$inc: {balance: 100}}
         },
         {returnOriginal: false}
       ),
-      rollbackRequest: findOneAndUpdate(
-        accountCollections, 
-        {name: 'Rachel'}, 
-        {$inc: {balance: -100}}, 
+      new Request('findOneAndUpdate', accountCollections,
+        {name: 'Rachel'},
+        (results) => {
+          return {$inc: {balance: -100}}
+        },
         {returnOriginal: false}
       )
-    });
+    );
 
     let transactionId = new ObjectID();
     let rollbackTransactionId = new ObjectID();
-    let transactionConfig = {
-      transactionsCollection,
-      transactionId,
-      rollbackTransactionId
-    };
-    let transaction = new Transaction(
-      transactionConfig, transferFromRoss, transferToRachel
-    );
-    
-    transaction.onCommit((results) => {
-      console.log(results);
-      client.close();
-    });
-    transaction.onRollback((error, results) => {
-      console.log(error);
-      console.log(results);
-      client.close();
-    });
 
-    transaction.invoke();
+    new Transaction(
+      new TransactionEnvironment(
+        transactionsCollection,
+        transactionId,
+        rollbackTransactionId
+      ),
+      new TransactionOperations(
+        transferFromRoss, transferToRachel
+      ),
+      new TransactionCallbacks(
+        new OnCommit((results) => {
+          console.log(results);
+          client.close();
+        }),
+        new OnRollback((error, results) => {
+          console.log(error);
+          console.log(results);
+          client.close();
+        }) 
+      ) 
+    ).invoke();
 
   //});
   

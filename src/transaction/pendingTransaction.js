@@ -3,8 +3,8 @@ const AppliedTransaction = require('./appliedTransaction');
 
 class PendingTransaction {
 
-	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
-		this.transactionDbState = transactionDbState;
+	constructor(transactionEnvironment, transactionOperations, transactionCallbacks) {
+		this.transactionEnvironment = transactionEnvironment;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;
 	}
@@ -17,15 +17,15 @@ class PendingTransaction {
 				results.push(result);
 				if (this.transactionOperations.isLast()) {
 
-					this.transactionDbState.apply(result, this.transactionOperations.currentNum(), (error, result) => {
+					this.transactionEnvironment.apply(result, this.transactionOperations.currentNum(), (error, result) => {
 						if (error == null) {
 							new AppliedTransaction(
-								this.transactionDbState,
+								this.transactionEnvironment,
 								this.transactionOperations.next(),
 								this.transactionCallbacks
 							).finish(results);
 						} else {
-							console.log('apply pending transactionDbState error');
+							console.log('apply pending transactionEnvironment error');
 							console.log(error);
 							// cancel transaction
 						}
@@ -33,15 +33,15 @@ class PendingTransaction {
 
 				} else {
 
-					this.transactionDbState.upgrade(result, this.transactionOperations.currentNum(), (error, result) => {
+					this.transactionEnvironment.upgrade(result, this.transactionOperations.currentNum(), (error, result) => {
 						if (error == null) {
 							new PendingTransaction(
-								this.transactionDbState,
+								this.transactionEnvironment,
 								this.transactionOperations.next(),
 								this.transactionCallbacks
 							).upgrade(results);
 						} else {
-							console.log('upgrade pending transactionDbState error');
+							console.log('upgrade pending transactionEnvironment error');
 							console.log(error);
 							// cancel transaction
 						}

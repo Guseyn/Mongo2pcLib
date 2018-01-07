@@ -5,8 +5,8 @@ const InvokedTransaction = require('./invokedTransaction');
 
 class PreparedTransaction {
 
-	constructor(transactionDbState, transactionOperations, transactionCallbacks) {
-		this.transactionDbState = transactionDbState;
+	constructor(transactionEnvironment, transactionOperations, transactionCallbacks) {
+		this.transactionEnvironment = transactionEnvironment;
 		this.transactionOperations = transactionOperations;
 		this.transactionCallbacks = transactionCallbacks;
 	}
@@ -15,11 +15,11 @@ class PreparedTransaction {
 		if (this.transactionOperations.isEmpty()) {
 			this.transactionCallbacks.commit();
 		} else {
-			let initialTransactionLog = this.transactionOperations.initialTransactionLog();
-			this.transactionDbState.init(initialTransactionLog, (error, result) => {
+			let initialTransactionLog = this.transactionEnvironment.initialTransactionLog(this.transactionOperations);
+			this.transactionEnvironment.init(initialTransactionLog, (error, result) => {
 				if (error == null) {
 					new InvokedTransaction(
-						this.transactionDbState,
+						this.transactionEnvironment,
 						this.transactionOperations,
 						this.transactionCallbacks
 					).start();
