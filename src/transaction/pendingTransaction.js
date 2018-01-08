@@ -18,8 +18,9 @@ class PendingTransaction
 
 		upgrade (results)
 			{
+				results = results || [];
 				this.transactionOperations.executeCurrent(
-					results || [],
+					results,
 						(error, result) => {
 
 							if (error == null) {

@@ -8,6 +8,7 @@ const TransactionOperations = require('./src/transactionOperations');
 const TransactionCallbacks = require('./src/transactionCallbacks');
 const OnCommit = require('./src/onCommit');
 const OnRollback = require('./src/onRollback');
+const OnFail = require('./src/onFail');
 const Operation = require('./src/operation');
 const Request = require('./src/request');
 
