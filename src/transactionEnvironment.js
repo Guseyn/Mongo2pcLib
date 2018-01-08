@@ -1,85 +1,100 @@
 'use strict'
 
-class TransactionEnvironment {
+class TransactionEnvironment 
 
-	constructor(collection, transactionId, rollbackTansactionId) {
-		this.collection = collection;
-		this.transactionId = transactionId;
-		this.rollbackTansactionId = rollbackTansactionId;
-	}
+	{
 
-	init(initialTransactionLog, initCallback) {
-		this.collection.insertOne(initialTransactionLog, initCallback);
-	}
-
-	start(startCallback) {
-		this.collection.findOneAndUpdate(
-			{_id: this.transactionId, state: 'initial'},
+		constructor (collection, transactionId, rollbackTansactionId)
 			{
-				$set: {state: 'pending', operationNum: 0, results: []},
-				$currentDate: {lastModified: true}
-			},
-			{returnOriginal: false},
-			startCallback
-		);
-	}
+				this.collection = collection;
+				this.transactionId = transactionId;
+				this.rollbackTansactionId = rollbackTansactionId;
+			}
 
-	upgrade(result, operationNum, upgradeCallback) {
-		this.collection.findOneAndUpdate(
-			{_id: this.transactionId, state: 'pending', operationNum: operationNum},
+		init (initialTransactionLog, initCallback)
 			{
-				$inc: {operationNum: 1},
-				$push: {results: result},
-				$currentDate: {lastModified: true}
-			}, 
-			{returnOriginal: false},
-			upgradeCallback
-		);
-	}
+				this.collection.insertOne(initialTransactionLog, initCallback);
+			}
 
-	apply(result, operationNum, appliedCallback) {
-		this.collection.findOneAndUpdate(
-			{_id: this.transactionId, state: 'pending', operationNum: operationNum},
+		start (startCallback)
 			{
-				$set: {state: 'applied'},
-				$inc: {operationNum: 1},
-				$currentDate: {lastModified: true}
-			},
-			{returnOriginal: false},
-			appliedCallback
-		);
-	}
+				this.collection.findOneAndUpdate(
+					{_id: this.transactionId, state: 'initial'},
+					{
+						$set: {state: 'pending', operationNum: 0, results: []},
+						$currentDate: {lastModified: true}
+					},
+					{returnOriginal: false},
+					startCallback
+				);
+			}
 
-	cancel(operationNum, cancelCallback) {
-		this.collection.findOneAndUpdate(
-			{_id: this.transactionId, state: 'pending', operationNum: operationNum},
+		upgrade (result, operationNum, upgradeCallback)
 			{
-				$set: {state: 'canceling'},
-				$currentDate: {lastModified: true}
-			},
-			{returnOriginal: false},
-			cancelCallback
-		);
+				this.collection.findOneAndUpdate(
+					{_id: this.transactionId, state: 'pending', operationNum: operationNum},
+					{
+						$inc: {operationNum: 1},
+						$push: {results: result},
+						$currentDate: {lastModified: true}
+					}, 
+					{returnOriginal: false},
+					upgradeCallback
+				);
+			}
+
+		apply (result, operationNum, appliedCallback) 
+			{
+				this.collection.findOneAndUpdate(
+					{_id: this.transactionId, state: 'pending', operationNum: operationNum},
+					{
+						$set: {state: 'applied'},
+						$inc: {operationNum: 1},
+						$currentDate: {lastModified: true}
+					},
+					{returnOriginal: false},
+					appliedCallback
+				);
+			}
+
+		cancel (operationNum, cancelCallback) 
+			{
+				this.collection.findOneAndUpdate(
+					{_id: this.transactionId, state: 'pending', operationNum: operationNum},
+					{
+						$set: {state: 'canceling'},
+						$currentDate: {lastModified: true}
+					},
+					{returnOriginal: false},
+					cancelCallback
+				);
+			}
+
+		systemJS (onAccess)
+			{
+				this.collection.s.db.collection(
+					'system.js',
+						(error, collection) => {
+							onAccess(
+								error, collection,
+									this.transactionId, this.rollbackTansactionId
+							);
+					}
+				);
+			}
+
+		initialTransactionLog (operations)
+			{
+				return {
+					_id: this.transactionId,
+					rollbackId: this.rollbackTransactionId || null,
+					state: 'initial',
+					requestsLog: operations.requestLog(),
+					rollbackRequestsLog: operations.rollbackRequestLog(),
+					lastModified: new Date()
+				}
+			}
+
 	}
-
-	systemJS(onAccess) {
-		this.collection.s.db.collection('system.js', (error, collection) => {
-			onAccess(error, collection, this.transactionId, this.rollbackTansactionId);
-		});
-	}
-
-	initialTransactionLog(operations) {
-		return {
-			_id: this.transactionId,
-			rollbackId: this.rollbackTransactionId || null,
-			state: 'initial',
-			requestsLog: operations.requestLog(),
-			rollbackRequestsLog: operations.rollbackRequestLog(),
-			lastModified: new Date()
-		}
-	}
-
-
-}
 
 module.exports = TransactionEnvironment;
