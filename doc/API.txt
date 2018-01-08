@@ -2,8 +2,8 @@
 ####################################################
 
 operation = new Operation(
-	new Request('findOneAndUpdate', collection, filter, update, options),
-	new Request('findOneAndUpdate', collection, filter, update, options)
+	new Request('findOneAndUpdate', collection, filter, update, options), // request for the main transaction
+	new Request('findOneAndUpdate', collection, filter, update, options) // request for the rollback transaction
 )
 
 transaction = new Transaction(
@@ -14,11 +14,23 @@ transaction = new Transaction(
 	new TransactionOperations(...operations),
 	new TransactionCallbacks(
 		new OnCommit((results) => {
-			// on commit
+			// on commit executes if 
+			// transaction is applied successfully 
 		}),
 		new OnRollback((error, results) => {
-			// on rollback
-		})
+			// on rollback executes if
+			// something bad happend in the main transaction (consistency of the database is broken)
+			// if error is null then rollback transaction is applied successfully
+			// if error is not null then something bad happend in the rollback transaction and only recovering process can help in 
+			// that case 
+		}),
+		new OnFail((error, transactionId) => {
+			// on fail executes if something bad happend in the main transction but consistency of the database is not broken, 
+			// in that case rollback transaction is not being created and
+			// it's better just to figure out what is problem by transactionId and error and start new transaction
+			// obviously onFail does not execute on the rollback transaction, because rollback trancation cannot be called if 
+			// consistency of the database is not broken. 
+		}) 
 	)
 );
 transaction.invoke();

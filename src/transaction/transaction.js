@@ -18,9 +18,10 @@ class Transaction
 			}
 
 		//API alias
-		invoke() {
-			this.prepare();
-		}
+		invoke() 
+			{
+				this.prepare();
+			}
 
 		prepare() 
 			{
@@ -33,19 +34,19 @@ class Transaction
 							);
 						}
 
-				this.transactionOperations.saveFunctionalArgumentsIntoSystemJS(
-					systemJSCollection,
-						transactionId, rollbackTransactionId,
-						() => {
-							new PreparedTransaction(
-								this.transactionEnvironment,
-								this.transactionOperations,
-								this.transactionCallbacks
-							).invoke();
-						}
-				);
-			});
-		}
+						this.transactionOperations.saveFunctionalArgumentsIntoSystemJS(
+							systemJSCollection,
+								transactionId, rollbackTransactionId,
+									() => {
+										new PreparedTransaction(
+											this.transactionEnvironment,
+											this.transactionOperations,
+											this.transactionCallbacks
+										).invoke();
+									}
+						);
+				});
+			}
 
 }
 

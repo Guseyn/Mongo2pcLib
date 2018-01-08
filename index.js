@@ -83,6 +83,10 @@ MongoClient.connect(url, function(err, client) {
           console.log(error);
           console.log(results);
           client.close();
+        }),
+        new OnFail((error, transactionId) => {
+          console.log([error, transactionId]);
+          client.close();
         }) 
       ) 
     ).invoke();

@@ -77,7 +77,7 @@ class TransactionEnvironment
 						(error, collection) => {
 							onAccess(
 								error, collection,
-									this.transactionId, this.rollbackTansactionId
+									this.transactionId, this.rollbackTansactionId || null
 							);
 					}
 				);
