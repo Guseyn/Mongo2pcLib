@@ -27,9 +27,9 @@ class InvokedTransaction
 								this.transactionCallbacks
 							).upgrade();
 						} else {
-							console.log('start error');
-							console.log(error);
-							// cancel transaction
+							throw new Error(
+								`error: failed on start transaction in the system: ${error}`
+							);
 						}
 					}
 				);

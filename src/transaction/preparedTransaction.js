@@ -37,9 +37,9 @@ class PreparedTransaction
 										this.transactionCallbacks
 									).start();
 								} else {
-									console.log('init error');
-									console.log(error);
-									// canceledTransaction
+									throw new Error(
+										`error: failed on init transaction in the system: ${error}`
+									);
 								}
 					});
 			}

@@ -42,7 +42,8 @@ class PendingTransaction
 														console.log(error);
 														// cancel transaction
 													}
-												});
+												}
+									);
 
 								} else {
 
@@ -61,7 +62,8 @@ class PendingTransaction
 														console.log(error);
 														// cancel transaction
 													}
-												});
+												}
+									);
 
 								}
 							} else {
@@ -70,6 +72,11 @@ class PendingTransaction
 								// cancel transaction
 							}
 						});
+			}
+
+		cancel() 
+			{
+				
 			}
 
 	}
