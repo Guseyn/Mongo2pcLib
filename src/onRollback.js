@@ -1,15 +1,19 @@
 'use strict'
 
-class OnRollback {
+class OnRollback 
 
-	constructor(callback) {
-		this.callback = callback;
+	{
+
+		constructor (callback)
+			{
+				this.callback = callback;
+			}
+
+		call (error, results)
+			{
+				this.callback(error, results);
+			}
+
 	}
-
-	call(error, results) {
-		this.callback(error, results);
-	}
-
-}
 
 module.exports = OnRollback;
