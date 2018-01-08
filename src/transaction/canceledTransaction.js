@@ -1,24 +1,24 @@
 
 class CancelledTransaction 
 
-	{
+  {
 
-		constructor (
-			transactionEnvironment,
-				transactionOperations,
-					transactionCallbacks
-		)
-			{
-				this.transactionEnvironment = transactionEnvironment;
-				this.transactionOperations = transactionOperations;
-				this.transactionCallbacks = transactionCallbacks;
-			}
+    constructor (
+      transactionEnvironment,
+        transactionOperations,
+          transactionCallbacks
+    )
+      {
+        this.transactionEnvironment = transactionEnvironment;
+        this.transactionOperations = transactionOperations;
+        this.transactionCallbacks = transactionCallbacks;
+      }
 
-		rollback() 
-			{
-		
-			}
+    rollback() 
+      {
+    
+      }
 
-	}
+  }
 
 module.exports = InvokedTransaction;
