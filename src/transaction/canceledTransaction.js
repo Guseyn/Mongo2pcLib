@@ -1,5 +1,6 @@
+'use strict'
 
-class CancelledTransaction 
+class CanceledTransaction 
 
   {
 
@@ -21,4 +22,4 @@ class CancelledTransaction
 
   }
 
-module.exports = InvokedTransaction;
+module.exports = CanceledTransaction;
