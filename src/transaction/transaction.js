@@ -25,6 +25,7 @@ class Transaction
 
     prepare() 
       {
+        
         this.transactionEnvironment.systemJS(
           (error, systemJSCollection, transactionId, rollbackTransactionId) => {
       

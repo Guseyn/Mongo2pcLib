@@ -9,6 +9,7 @@ class TransactionEnvironment
         this.collection = collection;
         this.transactionId = transactionId;
         this.rollbackTansactionId = rollbackTansactionId;
+        this.isRollbackTransaction = typeof(rollbackTransactionId) === 'undefined';
       }
 
     init (initialTransactionLog, initCallback)
