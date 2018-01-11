@@ -22,4 +22,4 @@ class FailedTransaction
 
   }
 
-module.exports = CanceledTransaction;
+module.exports = FailedTransaction;
