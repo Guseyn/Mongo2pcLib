@@ -55,59 +55,64 @@ class TransactionOperations
 
     saveFunctionalArgumentsIntoSystemJS (
       systemJSCollection,
-        transactionId, rollbackTransactionId,
+        transactionId,
+        rollbackTransactionId,
           saveCallback
     ) 
       {
     
-        let savedOperationsCount = 0;
+        let savedCount = 0;
         let operationsLength = this.operations.length;
-    
-        this.operations.forEach((operation, index) => {
-          (function(operation, index) {
 
-            operation.saveRequestFunctionalArgsIntoSystemJS(
-              systemJSCollection,
-                transactionId,
-                  (error) => {
-
-                    if (error != null) {
-                      throw new Error(
-                        `error while saving request functional args of operation with number ${index}, error:${error}`
-                      );
-                    }
-
-                    if (rollbackTransactionId != null) {
-            
-                      operation.saveRollbackRequestFunctionalArgsIntoSystemJS(
-                        systemJSCollection, 
-                          rollbackTransactionId, 
-                            (error) => {
-            
-                              if (error != null) {
-                                throw new Error(
-                                  `error while saving rollback request functional args of operation with number ${index}, error:${error}`
-                                );
-                              }
-
-                              savedOperationsCount += 1;
-                              if (savedOperationsCount === operationsLength - 1) {
-                                saveCallback();
-                              }
-
-                      });
-
-                    } else {
+        this.operations.forEach(
+          (operation, index) => {
           
-                      savedOperationsCount += 1;
-                      if (savedOperationsCount === operationsLength - 1) {
-                        saveCallback();
+            (function(operation, index) {
+
+              operation.saveRequestFunctionalArgsIntoSystemJS(
+                systemJSCollection,
+                  transactionId,
+                    (error) => {
+
+                      if (error != null) {
+                        throw new Error(
+                          `error while saving request functional args of operation with number ${index}, error:${error}`
+                        );
                       }
 
+                      if (rollbackTransactionId != null) {
+            
+                        operation.saveRollbackRequestFunctionalArgsIntoSystemJS(
+                          systemJSCollection, 
+                            rollbackTransactionId, 
+                              (error) => {
+            
+                                if (error != null) {
+                                  throw new Error(
+                                    `error while saving rollback request functional args of operation with number ${index}, error:${error}`
+                                  );
+                                }
+
+                                savedCount += 1;
+                                if (savedCount === operationsLength - 1) {
+                                  saveCallback();
+                                }
+
+                              }
+                        );
+
+                      } else {
+          
+                        savedCount += 1;
+                        if (savedCount === operationsLength - 1) {
+                          saveCallback();
+                        }
+
+                      }
                     }
-                  });
+              );
       
-          })(operation, index);
+            })(operation, index);
       
       });
     
@@ -115,7 +120,8 @@ class TransactionOperations
 
   removeFunctionalArgsFromSystemJS (
     systemJSCollection,
-      transactionId, rollbackTransactionId,
+      transactionId,
+      rollbackTransactionId,
         removeCallback
   )
     {
@@ -123,7 +129,7 @@ class TransactionOperations
       systemJSCollection.deleteMany(
         {transactionId: transactionId},
           (error, result) => {
-
+            
             if (error != null) {
               throw new Error(
                 `error while removing request functional args of operations`

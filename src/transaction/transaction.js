@@ -7,12 +7,16 @@ class Transaction
   {
 
     constructor (
-      transactionEnvironment,
-        transactionOperations,
-          transactionCallbacks
+      id,
+      rollbackId,
+        transactionCollection,
+          transactionOperations,
+            transactionCallbacks
     )
       {
-        this.transactionEnvironment = transactionEnvironment;
+        this.id = id;
+        this.rollbackId = rollbackId;
+        this.transactionCollection = transactionCollection;
         this.transactionOperations = transactionOperations;
         this.transactionCallbacks = transactionCallbacks;
       }
@@ -26,28 +30,35 @@ class Transaction
     prepare() 
       {
         
-        this.transactionEnvironment.systemJS(
-          (error, systemJSCollection, transactionId, rollbackTransactionId) => {
-      
-            if (error != null) {
-              throw new Error(
-                `cannot access system.js collection: ${error}`
-              );
+        this.transactionCollection.systemJS(
+          (error, systemJSCollection) => {
+
+            if (error == null) {
+              
+              this.transactionOperations
+                .saveFunctionalArgumentsIntoSystemJS(
+                  systemJSCollection,
+                    this.id, this.rollbackId,
+                      () => {
+                        new PreparedTransaction(
+                          this.id, this.rollbackId,
+                          this.transactionCollection,
+                          this.transactionOperations,
+                          this.transactionCallbacks
+                        ).invoke();
+                      }
+                );
+
+            } else {
+              console.log(`systemJS error:${error}`);
             }
 
-            this.transactionOperations.saveFunctionalArgumentsIntoSystemJS(
-              systemJSCollection,
-                transactionId, rollbackTransactionId,
-                  () => {
-                    new PreparedTransaction(
-                      this.transactionEnvironment,
-                      this.transactionOperations,
-                      this.transactionCallbacks
-                    ).invoke();
-                  }
-            );
-        });
+          }
+        );
+
       }
+
+
 
 }
 

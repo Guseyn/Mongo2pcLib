@@ -3,7 +3,7 @@ const ObjectID = require('mongodb').ObjectID;
 const assert = require('assert');
 
 const Transaction = require('./src/transaction/transaction');
-const TransactionEnvironment = require('./src/transactionEnvironment');
+const TransactionCollection = require('./src/transactionCollection');
 const TransactionOperations = require('./src/transactionOperations');
 const TransactionCallbacks = require('./src/transactionCallbacks');
 const OnCommit = require('./src/onCommit');
@@ -67,10 +67,10 @@ MongoClient.connect(url, function(err, client) {
     let rollbackTransactionId = new ObjectID();
 
     new Transaction(
-      new TransactionEnvironment(
-        transactionsCollection,
-        transactionId,
-        rollbackTransactionId
+      transactionId,
+      rollbackTransactionId,
+      new TransactionCollection(
+        transactionsCollection
       ),
       new TransactionOperations(
         transferFromRoss, transferToRachel

@@ -8,40 +8,55 @@ class PreparedTransaction
   {
 
     constructor (
-      transactionEnvironment,
-        transactionOperations,
-          transactionCallbacks
+      id,
+      rollbackId,
+        transactionCollection,
+          transactionOperations,
+            transactionCallbacks
     )
       {
-        this.transactionEnvironment = transactionEnvironment;
+        this.id = id;
+        this.rollbackId = rollbackId;
+        this.transactionCollection = transactionCollection;
         this.transactionOperations = transactionOperations;
         this.transactionCallbacks = transactionCallbacks;
       }
 
   invoke() 
     {
+
       if (this.transactionOperations.isEmpty()) {
+        
         this.transactionCallbacks.commit();
+      
       } else {
-        let initialTransactionLog = this.transactionEnvironment
+
+        let initialTransactionLog = this.transactionCollection
           .initialTransactionLog (
-            this.transactionOperations
+            this.id,
+            this.rollbackId,
+              this.transactionOperations
           );
-          this.transactionEnvironment.init(
-            initialTransactionLog,
-              (error, result) => {
-                if (error == null) {
-                  new InvokedTransaction(
-                    this.transactionEnvironment,
-                    this.transactionOperations,
-                    this.transactionCallbacks
-                  ).start();
-                } else {
-                  throw new Error(
-                    `error: failed on init transaction in the system: ${error}`
-                  );
+
+          this.transactionCollection.init(
+              initialTransactionLog,
+                (error, result) => {
+
+                  if (error == null) {
+                    
+                    new InvokedTransaction(
+                      this.id,
+                      this.rollbackId,
+                      this.transactionCollection,
+                      this.transactionOperations,
+                      this.transactionCallbacks
+                    ).start();
+                
+                  } else {
+                    console.log('init error');
+                  }
                 }
-          });
+          );
       }
     }
 

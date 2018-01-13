@@ -5,12 +5,16 @@ class CanceledTransaction
   {
 
     constructor (
-      transactionEnvironment,
-        transactionOperations,
-          transactionCallbacks
+      id,
+      rollbackId,
+        transactionCollection,
+          transactionOperations,
+            transactionCallbacks
     )
       {
-        this.transactionEnvironment = transactionEnvironment;
+        this.id = id;
+        this.rollbackId = rollbackId;
+        this.transactionCollection = transactionCollection;
         this.transactionOperations = transactionOperations;
         this.transactionCallbacks = transactionCallbacks;
       }
