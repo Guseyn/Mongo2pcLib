@@ -1,15 +1,12 @@
 'use strict'
 
-class TransactionEnvironment 
+class TransactionCollection
 
   {
 
-    constructor (collection, transactionId, rollbackTansactionId)
+    constructor (collection)
       {
         this.collection = collection;
-        this.transactionId = transactionId;
-        this.rollbackTansactionId = rollbackTansactionId;
-        this.isRollbackTransaction = typeof(rollbackTransactionId) === 'undefined';
       }
 
     init (initialTransactionLog, initCallback)
@@ -17,10 +14,10 @@ class TransactionEnvironment
         this.collection.insertOne(initialTransactionLog, initCallback);
       }
 
-    start (startCallback)
+    start (id, startCallback)
       {
         this.collection.findOneAndUpdate(
-          {_id: this.transactionId, state: 'initial'},
+          {_id: id, state: 'initial'},
           {
             $set: {state: 'pending', operationNum: 0, results: []},
             $currentDate: {lastModified: true}
@@ -30,10 +27,10 @@ class TransactionEnvironment
         );
       }
 
-    upgrade (result, operationNum, upgradeCallback)
+    upgrade (id, result, operationNum, upgradeCallback)
       {
         this.collection.findOneAndUpdate(
-          {_id: this.transactionId, state: 'pending', operationNum: operationNum},
+          {_id: id, state: 'pending', operationNum: operationNum},
           {
             $inc: {operationNum: 1},
             $push: {results: result},
@@ -44,10 +41,10 @@ class TransactionEnvironment
         );
       }
 
-    apply (result, operationNum, appliedCallback) 
+    apply (id, result, operationNum, appliedCallback) 
       {
         this.collection.findOneAndUpdate(
-          {_id: this.transactionId, state: 'pending', operationNum: operationNum},
+          {_id: id, state: 'pending', operationNum: operationNum},
           {
             $set: {state: 'applied'},
             $inc: {operationNum: 1},
@@ -58,10 +55,10 @@ class TransactionEnvironment
         );
       }
 
-    cancel (operationNum, cancelCallback) 
+    cancel (id, operationNum, cancelCallback) 
       {
         this.collection.findOneAndUpdate(
-          {_id: this.transactionId, state: 'pending', operationNum: operationNum},
+          {_id: id, state: 'pending', operationNum: operationNum},
           {
             $set: {state: 'canceling'},
             $currentDate: {lastModified: true}
@@ -74,21 +71,16 @@ class TransactionEnvironment
     systemJS (onAccess)
       {
         this.collection.s.db.collection(
-          'system.js',
-            (error, collection) => {
-              onAccess(
-                error, collection,
-                  this.transactionId, this.rollbackTansactionId || null
-              );
-          }
+          'system.js', 
+            onAccess
         );
       }
 
-    initialTransactionLog (operations)
+    initialTransactionLog (id, rollbackId, operations)
       {
         return {
-          _id: this.transactionId,
-          rollbackId: this.rollbackTransactionId || null,
+          _id: id,
+          rollbackId: rollbackId || null,
           state: 'initial',
           requestsLog: operations.requestLog(),
           rollbackRequestsLog: operations.rollbackRequestLog(),
@@ -98,4 +90,4 @@ class TransactionEnvironment
 
   }
 
-module.exports = TransactionEnvironment;
+module.exports = TransactionCollection;

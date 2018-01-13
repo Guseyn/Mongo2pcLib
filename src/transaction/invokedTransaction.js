@@ -6,32 +6,44 @@ class InvokedTransaction
   {
 
     constructor (
-      transactionEnvironment,
-        transactionOperations,
-          transactionCallbacks
+      id,
+      rollbackId,
+        transactionCollection,
+            transactionOperations,
+              transactionCallbacks
     )
       {
-        this.transactionEnvironment = transactionEnvironment;
+        this.id = id;
+        this.rollbackId = rollbackId;
+        this.transactionCollection = transactionCollection;
         this.transactionOperations = transactionOperations;
         this.transactionCallbacks = transactionCallbacks;
       }
 
     start() 
       {
-        this.transactionEnvironment.start(
-          (error, result) => {
-            if (error == null) {
-              new PendingTransaction(
-                this.transactionEnvironment,
-                this.transactionOperations,
-                this.transactionCallbacks
-              ).upgrade();
-            } else {
-              throw new Error(
-                `error: failed on start transaction in the system: ${error}`
-              );
+        this.transactionCollection.start(
+          this.id,
+            (error, result) => {
+
+              if (error == null) {
+              
+                new PendingTransaction(
+                  this.id,
+                  this.rollbackId,
+                  this.transactionCollection,
+                  this.transactionOperations,
+                  this.transactionCallbacks
+                ).upgrade();
+
+              } else {
+
+                throw new Error(
+                  `error: failed on start transaction in the system: ${error}`
+                );
+
+              }
             }
-          }
         );
       }
 

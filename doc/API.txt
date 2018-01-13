@@ -7,10 +7,9 @@ operation = new Operation(
 )
 
 transaction = new Transaction(
-  new TransactionEnvironment(
-    transactionCollection,
-    transactionId, rollbackTransactionId
-  ),
+  id,
+  rollbackId,
+  new TransactionCollection(collection),
   new TransactionOperations(...operations),
   new TransactionCallbacks(
     new OnCommit((results) => {
