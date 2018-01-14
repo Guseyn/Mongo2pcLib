@@ -43,7 +43,7 @@ class PreparedTransaction
                 (error, result) => {
 
                   if (error == null) {
-                    
+
                     new InvokedTransaction(
                       this.id,
                       this.rollbackId,
@@ -53,7 +53,23 @@ class PreparedTransaction
                     ).start();
                 
                   } else {
-                    console.log('init error');
+
+                    // Main transaction
+                    if (rollbackId != null) {
+                      this.transactionCallbacks.nonConsistentFail(
+                        new Error(
+                          `transaction init error: ${error.message}`
+                        ), this.id
+                      );
+                    } else {
+                      // Rollback transaction
+                      this.transactionCallbacks.consistentFail(
+                        new Error(
+                          `transaction init error: ${error.message}`
+                        ), this.id
+                      );
+                    }
+                    
                   }
                 }
           );

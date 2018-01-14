@@ -1,6 +1,6 @@
 'use strict'
 
-class OnFail 
+class OnConsistentFail 
 
   {
 
@@ -16,4 +16,4 @@ class OnFail
 
   }
 
-module.exports = OnFail;
+module.exports = OnConsistentFail;

@@ -1,5 +1,6 @@
 
 const AppliedTransaction = require('./appliedTransaction');
+const CanceledTransaction = require('./canceledTransaction');
 
 class PendingTransaction 
 
@@ -53,9 +54,8 @@ class PendingTransaction
 
                             } else {
 
-                              console.log('apply pending transactionCollection error');
-                              console.log(error);
-                              // cancel transaction
+                              cancel('applying transaction');
+
                             }
 
                           }
@@ -80,10 +80,9 @@ class PendingTransaction
                               ).upgrade(results);
 
                             } else {
-                            
-                              console.log('upgrade pending transactionCollection error');
-                              console.log(error);
-                              // cancel transaction
+                              cancel(
+                                `upgrading transaction failed on operation with number ${this.transactionOperations.currentNum()}`
+                              );
                             }
                           }
                   );
@@ -91,17 +90,46 @@ class PendingTransaction
                 }
               } else {
 
-                console.log('upgrade pending transaction error');
-                console.log(error);
-                // cancel transaction
+                cancel(`executing of the operation with number ${this.transactionOperations.currentNum()}`)
               
               }
+
             });
       }
 
-    cancel() 
+    cancel(specificCancelMessage) 
       {
-        
+        if (this.rollbackId != null) {
+
+          this.transactionCollection.cancel(
+            this.id,
+              this.transactionOperations.currentNum(),
+                (error, result) => {
+
+                  if (error == null) {
+                    
+                    new CanceledTransaction(
+                      this.id,
+                      this.rollbackId,
+                      this.transactionCollection,
+                      this.transactionOperations,
+                      this.transactionCallbacks
+                    ).rollback();
+
+                  } else {
+
+                    this.transactionCallbacks.consistentFail(
+                        new Error(
+                          `${specificCancelMessage} failed with error: ${error.mesasge}`
+                        ), this.id
+                    );
+
+                  }
+
+                }
+          );
+
+        }
       }
 
   }

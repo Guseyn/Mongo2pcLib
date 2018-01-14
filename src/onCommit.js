@@ -9,9 +9,9 @@ class OnCommit
         this.callback = callback;
       }
 
-    call(results)
+    call(transactionId, results)
      {
-      this.callback(results);
+      this.callback(transactionId, results);
      }
 
   }

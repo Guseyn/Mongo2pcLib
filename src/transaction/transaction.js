@@ -34,7 +34,7 @@ class Transaction
           (error, systemJSCollection) => {
 
             if (error == null) {
-              
+
               this.transactionOperations
                 .saveFunctionalArgumentsIntoSystemJS(
                   systemJSCollection,
@@ -50,7 +50,23 @@ class Transaction
                 );
 
             } else {
-              console.log(`systemJS error:${error}`);
+
+              // Main transaction
+              if (rollbackId != null) {
+                this.transactionCallbacks.nonConsistentFail(
+                  new Error(
+                    `systemJS error is not accessable: ${error.message}`
+                  ), this.id
+                );
+              } else {
+                // Rollback transcation
+                this.transactionCallbacks.consistentFail(
+                  new Error(
+                    `systemJS error is not accessable: ${error.message}`
+                  ), this.id
+                );
+              }
+
             }
 
           }
