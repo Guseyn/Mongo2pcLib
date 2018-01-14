@@ -28,14 +28,16 @@ class AppliedTransaction
                 systemJSCollection,
                   this.id, this.rollbackId, 
                     () => {
-                      this.transactionCallbacks.commit(results);
+                      this.transactionCallbacks.commit(this.id, results);
                   }
               );
 
             } else {
 
-              throw new Error(
-                `cannot access system.js collection: ${error}`
+              this.transactionCallbacks.nonConsistentFail(
+                  new Error(
+                    `systemJS error is not accessable: ${error.message}`
+                  ), this.id
               );
 
             }

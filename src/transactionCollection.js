@@ -68,6 +68,19 @@ class TransactionCollection
         );
       }
 
+    fail (id, failCallback)
+      {
+        this.collection.findOneAndUpdate(
+          {_id: id, state: {$ne: 'pending'}},
+          {
+            $set: {state: 'failed'},
+            $currentDate: {lastModified: true}
+          },
+          {returnOriginal: false},
+          cancelCallback
+        );
+      }
+
     systemJS (onAccess)
       {
         this.collection.s.db.collection(

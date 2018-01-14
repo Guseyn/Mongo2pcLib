@@ -1,5 +1,6 @@
 
 const PendingTransaction = require('./pendingTransaction');
+const FailedTransaction = require('./failedTransaction');
 
 class InvokedTransaction 
 
@@ -38,9 +39,41 @@ class InvokedTransaction
 
               } else {
 
-                throw new Error(
-                  `error: failed on start transaction in the system: ${error}`
-                );
+                if (rollbackId != null) {
+                  
+                  this.transactionCollection.fail(this.id, (error, result) => {
+
+                    if (error == null) {
+
+                      new FailedTransaction(
+                        this.id,
+                        this.rollbackId,
+                        this.transactionCollection,
+                        this.transactionOperations,
+                        this.transactionCallbacks
+                      ).out();
+
+                    } else {
+
+                      this.transactionCallbacks.nonConsistentFail(
+                        new Error(
+                          `faled on changing state of the transaction to fail state with error: ${error.message}`
+                        ), this.id
+                      );
+
+                    }
+
+                  });
+
+                } else {
+
+                  this.transactionCallbacks.сonsistentFail(
+                    new Error(
+                      `faled on changing state of the transaction to fail state with error: ${error.message}`
+                    ), this.id
+                  );
+
+                }
 
               }
             }

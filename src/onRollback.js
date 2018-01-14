@@ -9,9 +9,9 @@ class OnRollback
         this.callback = callback;
       }
 
-    call (error, results)
+    call (transactionId, results)
       {
-        this.callback(error, results);
+        this.callback(transactionId, results);
       }
 
   }

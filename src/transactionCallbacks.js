@@ -2,27 +2,32 @@ class TransactionCallbacks
 
   {
 
-    constructor (onCommit, onRollback, onFail) 
+    constructor (onCommit, onRollback, onConsitentFail, onNonConsitentFail) 
       {
         this.onCommit = onCommit;
         this.onRollback = onRollback;
-        this.onFail = onFail;
+        this.onConsitentFail = onConsitentFail;
+        this.onNonConsitentFail = onNonConsitentFail;
       }
 
-    commit (results)
+    commit (id, results)
       {
-        this.onCommit.call(results || []);
+        this.onCommit.call(id, results || []);
       }
 
-    rollback (error, results)
+    rollback (id, results)
       {
-        this.onRollback.call(error, results || []);
+        this.onRollback.call(id, results || []);
       }
 
-    fail(error, transactionId)
+    consitentFail(error, id)
       {
-        this.onFail.call(error, transactionId);
+        this.onConsitentFail.call(error, id);
       }
+
+    nonConsitentFail(error, id) {
+      this.onNonConsitentFail(error, id);
+    }
 
   }
 

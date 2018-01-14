@@ -8,7 +8,8 @@ const TransactionOperations = require('./src/transactionOperations');
 const TransactionCallbacks = require('./src/transactionCallbacks');
 const OnCommit = require('./src/onCommit');
 const OnRollback = require('./src/onRollback');
-const OnFail = require('./src/onFail');
+const OnConsistentFail = require('./src/onConsistentFail');
+const OnNonConsistentFail = require('./src/onNonConsistentFail');
 const Operation = require('./src/operation');
 const Request = require('./src/request');
 
@@ -76,19 +77,22 @@ MongoClient.connect(url, function(err, client) {
         transferFromRoss, transferToRachel
       ),
       new TransactionCallbacks(
-        new OnCommit((results) => {
+        new OnCommit((transactionId, results) => {
           console.log(results);
           client.close();
         }),
-        new OnRollback((error, results) => {
-          console.log(error);
+        new OnRollback((transactionId, results) => {
           console.log(results);
           client.close();
         }),
-        new OnFail((error, transactionId) => {
+        new OnConsistentFail((error, transactionId) => {
           console.log([error, transactionId]);
           client.close();
-        }) 
+        }),
+        new OnNonConsistentFail((error, transactionId) => {
+          console.log([error, transactionId]);
+          client.close();
+        })
       ) 
     ).invoke();
 
