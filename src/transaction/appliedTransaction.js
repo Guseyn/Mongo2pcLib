@@ -16,8 +16,14 @@ class AppliedTransaction {
         if (error == null) {
 
           this.transactionOperations.removeFunctionalArgsFromSystemJS (
-            systemJSCollection, this.id, this.rollbackId, () => {
-              this.transactionCallbacks.commit(this.id, results);
+            systemJSCollection, this.id, this.rollbackId, (error) => {
+
+              if (error == null) {
+                this.transactionCallbacks.commit(this.id, results);
+              } else {
+                this.transactionCallbacks.nonConsistentFail(error, this.id);
+              }
+            
             }
           );
 
