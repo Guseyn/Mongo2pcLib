@@ -11,7 +11,14 @@ class CanceledTransaction {
   }
 
   rollback() {
-    
+
+    new Transaction(
+      this.id, this.rollbackId,
+      this.transactionCollection,
+      this.transactionOperations.rollbackAll(),
+      this.transactionCallbacks
+    ).invoke();
+
   }
 
 }

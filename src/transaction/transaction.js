@@ -23,13 +23,19 @@ class Transaction {
         if (error == null) {
 
           this.transactionOperations.saveFunctionalArgumentsIntoSystemJS(
-            systemJSCollection, this.id, this.rollbackId, () => {
-              new PreparedTransaction(
-                this.id, this.rollbackId,
-                this.transactionCollection,
-                this.transactionOperations,
-                this.transactionCallbacks
-              ).invoke();
+            systemJSCollection, this.id, this.rollbackId, (error) => {
+
+              if (error == null) {
+                new PreparedTransaction(
+                  this.id, this.rollbackId,
+                  this.transactionCollection,
+                  this.transactionOperations,
+                  this.transactionCallbacks
+                ).invoke();
+              } else {
+                this.callbacks.nonConsistentFail(error, this.id);
+              }
+              
             }
           );
 

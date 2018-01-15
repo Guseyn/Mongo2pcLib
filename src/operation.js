@@ -9,7 +9,7 @@ class Operation {
   }
 
   rollbackOperation() {
-    //TODO
+    return new Operation(this.rollbackRequest);
   }
 
   executeRequest (results, requestCallback) {
@@ -25,6 +25,9 @@ class Operation {
   }
 
   saveRollbackRequestFunctionalArgsIntoSystemJS (systemJSCollection, transactionId, saveCallback) {
+    if (!this.rollbackRequest) {
+      throw new Error('saveRollbackRequestFunctionalArgsIntoSystemJS is not supported for the current(rollback) transaction');
+    }
     this.rollbackRequest.saveFunctionalArgsIntoSystemJS (
       systemJSCollection, transactionId, saveCallback
     );
@@ -35,6 +38,9 @@ class Operation {
   }
 
   rollbackRequestLog() {
+    if (!this.rollbackRequest) {
+      throw new Error('rollbackRequestLog is not supported for the current(rollback) transaction');
+    }
     return this.rollbackRequest.log();
   }
 

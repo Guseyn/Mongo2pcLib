@@ -1,8 +1,6 @@
 'use strict'
 
-class FailedTransaction 
-
-  {
+class FailedTransaction {
 
     constructor (id, rollbackId, collection, operations, callbacks) {
         this.id = id;
@@ -20,6 +18,6 @@ class FailedTransaction
       );
     }
 
-  }
+}
 
 module.exports = FailedTransaction;
