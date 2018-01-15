@@ -1,29 +1,19 @@
 'use strict'
 
-class CanceledTransaction 
+class CanceledTransaction {
 
-  {
-
-    constructor (
-      id,
-      rollbackId,
-        transactionCollection,
-          transactionOperations,
-            transactionCallbacks
-    )
-      {
-        this.id = id;
-        this.rollbackId = rollbackId;
-        this.transactionCollection = transactionCollection;
-        this.transactionOperations = transactionOperations;
-        this.transactionCallbacks = transactionCallbacks;
-      }
-
-    rollback() 
-      {
-    
-      }
-
+  constructor (id, rollbackId, collection, operations,callbacks) {
+    this.id = id;
+    this.rollbackId = rollbackId;
+    this.transactionCollection = collection;
+    this.transactionOperations = operations;
+    this.transactionCallbacks = callbacks;
   }
+
+  rollback() {
+    
+  }
+
+}
 
 module.exports = CanceledTransaction;

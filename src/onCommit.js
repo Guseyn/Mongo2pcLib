@@ -1,19 +1,15 @@
 'use strict'
 
-class OnCommit 
+class OnCommit {
 
-  {
-
-    constructor (callback)
-      {
-        this.callback = callback;
-      }
-
-    call(transactionId, results)
-     {
-      this.callback(transactionId, results);
-     }
-
+  constructor (callback) {
+    this.callback = callback;
   }
+
+  call(transactionId, results) {
+    this.callback(transactionId, results);
+  }
+
+}
 
 module.exports = OnCommit;
