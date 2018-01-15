@@ -1,52 +1,37 @@
-class AppliedTransaction 
+class AppliedTransaction {
 
-  {
+  constructor (id, rollbackId, collection, operations, callbacks) {
+    this.id = id;
+    this.rollbackId = rollbackId;
+    this.transactionCollection = collection;
+    this.transactionOperations = operations;
+    this.transactionCallbacks = callbacks;
+  }
 
-    constructor (
-      id,
-      rollbackId,
-        transactionCollection,
-          transactionOperations, 
-            transactionCallbacks
-    )
-      {
-        this.id = id;
-        this.rollbackId = rollbackId;
-        this.transactionCollection = transactionCollection;
-        this.transactionOperations = transactionOperations;
-        this.transactionCallbacks = transactionCallbacks;
-      }
+  finish (results) {
 
-    finish (results)
-      {
-        this.transactionCollection.systemJS(
-          (error, systemJSCollection) => {
+    this.transactionCollection.systemJS(
+      (error, systemJSCollection) => {
 
-            if (error == null) {
+        if (error == null) {
 
-              this.transactionOperations.removeFunctionalArgsFromSystemJS (
-                systemJSCollection,
-                  this.id, this.rollbackId, 
-                    () => {
-                      this.transactionCallbacks.commit(this.id, results);
-                  }
-              );
-
-            } else {
-
-              this.transactionCallbacks.nonConsistentFail(
-                  new Error(
-                    `systemJS error is not accessable: ${error.message}`
-                  ), this.id
-              );
-
+          this.transactionOperations.removeFunctionalArgsFromSystemJS (
+            systemJSCollection, this.id, this.rollbackId, () => {
+              this.transactionCallbacks.commit(this.id, results);
             }
+          );
 
+        } else {
 
-      
-        });
-    
-      }
+          this.transactionCallbacks.nonConsistentFail (
+            new Error(
+              `systemJS error is not accessable: ${error.message}`
+            ), this.id
+          );
+
+        }
+      });
+  }
 
 }
 

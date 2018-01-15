@@ -1,19 +1,15 @@
 'use strict'
 
-class OnNonConsistentFail 
+class OnNonConsistentFail {
 
-  {
-
-    constructor (callback)
-      {
-        this.callback = callback;
-      }
-
-    call(error, transactionId)
-     {
-      this.callback(error, transactionId);
-     }
-
+  constructor (callback) {
+    this.callback = callback;
   }
+
+  call (error, transactionId) {
+    this.callback(error, transactionId);
+  }
+
+}
 
 module.exports = OnNonConsistentFail;
