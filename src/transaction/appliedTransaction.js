@@ -1,3 +1,5 @@
+const ExecutedOperation = require('./async/executedOperation');
+
 class AppliedTransaction {
 
   constructor (id, rollbackId, collection, operations, callbacks) {

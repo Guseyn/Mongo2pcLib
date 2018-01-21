@@ -15,8 +15,7 @@ class Request {
       return typeof(arg) === 'function' ? arg(results) : arg;
     });
     
-    appliedArgs.push(requestCallback);
-    this.collection[this.methodName].apply(this.collection, appliedArgs);
+    this.collection[this.methodName](...appliedArgs, requestCallback);
 
   }
 
