@@ -13,7 +13,7 @@ class FailedTransaction {
     out() {
       this.transactionCallbacks.nonConsistentFail(
         new Error(
-            `error: transaction failed, but consstency of the db is not broken`
+            `error: transaction failed, but consistency of the db is not broken`
         ), this.id
       );
     }

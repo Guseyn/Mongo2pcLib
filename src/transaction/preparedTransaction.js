@@ -1,7 +1,7 @@
 
 'use strict'
 
-const InvokedTransaction = require('./invokedTransaction');
+const InitialTransactionState = require('./async/initialTransactionState');
 
 class PreparedTransaction {
 
@@ -25,44 +25,17 @@ class PreparedTransaction {
         this.id, this.rollbackId, this.transactionOperations
       );
 
-      this.transactionCollection.init(
-        initialTransactionLog, (error, result) => {
-
-          if (error == null) {
-
-            new InvokedTransaction(
-              this.id,
-              this.rollbackId,
-              this.transactionCollection,
-              this.transactionOperations,
-              this.transactionCallbacks
-            ).start();
-                
-          } else {
-
-            // Main transaction
-            if (rollbackId != null) {
-
-              this.transactionCallbacks.nonConsistentFail(
-                new Error(
-                  `transaction init error: ${error.message}`
-                ), this.id
-              );
-
-            } else {
-
-              // Rollback transaction
-              this.transactionCallbacks.consistentFail(
-                new Error(
-                  `transaction init error: ${error.message}`
-                ), this.id
-              );
-              
-            }
-
-          }
+      new InitialTransactionState(
+        this.transactionCollection,
+        {
+          id: this.id, 
+          rollbackId: this.rollbackId,
+          transactionCollection: this.transactionCollection,
+          transactionOperations: this.transactionOperations,
+          transactionCallbacks: this.transactionCallbacks
         }
-      );
+      ).call('init', initialTransactionLog);
+      
     }
   }
 }

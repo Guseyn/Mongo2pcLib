@@ -1,26 +1,27 @@
 class AsyncObject {
 
-	constructor(asyncFunc, ...args) {
-		this.asyncFunc = asyncFunc;
-		this.args = args;
+	constructor(obj, encapsulatedProperties) {
+		this.obj = obj;
+		Object.keys(encapsulatedProperties).forEach(function(key) {
+			this[key] = encapsulatedProperties[key];
+		}.bind(this));
 	}
 
-	call(thisObj) {
-		this.args.push((error, result) => {
-			if (error) {
+	call(asyncCall, ...args) {
+		this.obj[asyncCall](...args, (error, result) => {
+			if (error != null) {
 				this.onError(error);
 			} else {
 				this.onResult(result);
 			}
 		});
-		this.asyncFunc.apply(thisObj, this.args);
-	}
-
-	onError(error) {
-
 	}
 
 	onResult(result) {
+
+	}
+
+	onError(error) {
 
 	}
 
