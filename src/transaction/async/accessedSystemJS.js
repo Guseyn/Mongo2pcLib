@@ -3,8 +3,8 @@ const SavedFunctionalArgumentsIntoSystemJS = require('./savedFunctionalArguments
 
 class AccessedSystemJS extends AsyncObject {
 
-  constructor(asyncFunc, args) {
-    super(asyncFunc, args);
+  constructor(obj, args) {
+    super(obj, args);
   }
 
   call(asyncCall) {
@@ -13,34 +13,25 @@ class AccessedSystemJS extends AsyncObject {
 
   onResult(systemJSCollection) {
     new SavedFunctionalArgumentsIntoSystemJS(
-      this.transactionOperations,
-      {
-        id: this.id,
-        rollbackId: this.rollbackId,
-        transactionCollection: this.transactionCollection,
-        transactionOperations: this.transactionOperations,
-        transactionCallbacks: this.transactionCallbacks
-      }
+      this.obj, {}
     ).call('saveFunctionalArgumentsIntoSystemJS', systemJSCollection);
   }
 
   onError(error) {
     // Main transaction
     if (this.rollbackId != null) {
-      this.transactionCallbacks.nonConsistentFail(
+      this.obj.nonConsistentFail(
         new Error(
           `systemJS error is not accessable: ${error.message}`
-        ), this.id
+        )
       );
     } else {
-
       // Rollback transcation
-      this.transactionCallbacks.consistentFail(
+      this.obj.consistentFail(
         new Error(
           `systemJS error is not accessable: ${error.message}`
-        ), this.id
+        )
       );
-
     }
   }
 
