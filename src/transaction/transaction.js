@@ -10,18 +10,6 @@ class Transaction extends TransactionProtocol {
     super(id, rollbackId, сollection, operations, callbacks);
   }
 
-  consistentFail(error) {
-    super.consistentFail(error);
-  }
-
-  nonConsistentFail(error) {
-    super.nonConsistentFail(error);
-  }
-
-  logState() {
-    
-  }
-
   nextState() {
     return new PreparedTransaction(
       this.id, this.rollbackId,

@@ -6,11 +6,11 @@ class TransactionCollection {
     this.collection = collection;
   }
 
-  init (initialTransactionLog, initCallback) {
-    this.collection.insertOne(initialTransactionLog, initCallback);
+  init (initialTransactionLog, onInit) {
+    this.collection.insertOne(initialTransactionLog, onInit);
   }
 
-  start (id, startCallback) {
+  start (id, onStart) {
     this.collection.findOneAndUpdate(
       {_id: id, state: 'initial'},
       {
@@ -18,11 +18,11 @@ class TransactionCollection {
         $currentDate: {lastModified: true}
       },
       {returnOriginal: false},
-      startCallback
+      onStart
     );
   }
 
-  upgrade (id, result, operationNum, upgradeCallback) {
+  upgrade (id, result, operationNum, onUpgrade) {
     this.collection.findOneAndUpdate(
       {_id: id, state: 'pending', operationNum: operationNum},
       {
@@ -31,11 +31,11 @@ class TransactionCollection {
         $currentDate: {lastModified: true}
       }, 
       {returnOriginal: false},
-      upgradeCallback
+      onUpgrade
     );
   }
 
-  apply (id, result, operationNum, appliedCallback) {
+  apply (id, result, operationNum, onApplied) {
     this.collection.findOneAndUpdate(
       {_id: id, state: 'pending', operationNum: operationNum},
       {
@@ -44,11 +44,11 @@ class TransactionCollection {
         $currentDate: {lastModified: true}
       },
       {returnOriginal: false},
-      appliedCallback
+      onApplied
     );
   }
 
-  cancel (id, operationNum, cancelCallback) {
+  cancel (id, operationNum, onCancel) {
     this.collection.findOneAndUpdate(
       {_id: id, state: 'pending', operationNum: operationNum},
       {
@@ -56,11 +56,11 @@ class TransactionCollection {
         $currentDate: {lastModified: true}
       },
       {returnOriginal: false},
-      cancelCallback
+      onCancel
     );
   }
 
-  fail (id, failCallback) {
+  fail (id, onFail) {
     this.collection.findOneAndUpdate(
       {_id: id, state: {$ne: 'pending'}},
       {
@@ -68,7 +68,7 @@ class TransactionCollection {
         $currentDate: {lastModified: true}
       },
       {returnOriginal: false},
-      cancelCallback
+      onFail
     );
   }
 
