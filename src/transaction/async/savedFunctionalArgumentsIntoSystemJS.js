@@ -3,25 +3,20 @@ const PreparedTransaction = require('./../preparedTransaction');
 
 class SavedFunctionalArgumentsIntoSystemJS extends AsyncObject {
 
-  constructor(asyncFunc, args) {
-    super(asyncFunc, args);
+  constructor(obj, args) {
+    super(obj, args);
   }
 
   call(asyncCall, systemJSCollection) {
-    super.call(asyncCall, systemJSCollection, this.id, this.rollbackId);
+    super.call(asyncCall, systemJSCollection);
   }
 
   onResult(result) {
-    new PreparedTransaction(
-      this.id, this.rollbackId,
-      this.transactionCollection,
-      this.transactionOperations,
-      this.transactionCallbacks
-    ).invoke();
+  	this.obj.nextState().invoke();
   }
 
   onError(error) {
-    this.transactionCallbacks.nonConsistentFail(error, this.id);
+    this.obj.nonConsistentFail(error);
   }
 
 }
