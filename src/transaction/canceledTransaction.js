@@ -1,13 +1,12 @@
 'use strict'
 
-class CanceledTransaction {
+const TransactionProtocol = require('./transactionProtocol');
+const Transaction = require('./transaction');
+
+class CanceledTransaction extends TransactionProtocol {
 
   constructor (id, rollbackId, collection, operations,callbacks) {
-    this.id = id;
-    this.rollbackId = rollbackId;
-    this.transactionCollection = collection;
-    this.transactionOperations = operations;
-    this.transactionCallbacks = callbacks;
+    super(id, rollbackId, collection, operations,callbacks);
   }
 
   rollback() {

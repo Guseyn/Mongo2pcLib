@@ -7,9 +7,9 @@ class TransactionOperations {
     this.currentOperationNum = 0;
   }
 
-  executeCurrent (results, executeCallback) {
+  executeCurrent (results, onExecute) {
     this.current().executeRequest(
-      results, executeCallback
+      results, onExecute
     );
   }
 
@@ -112,7 +112,7 @@ class TransactionOperations {
     
   }
 
-  removeFunctionalArgsFromSystemJS (
+  removeFunctionalArgumentsFromSystemJS (
     systemJSCollection, 
     transactionId, rollbackTransactionId, 
     removeCallback

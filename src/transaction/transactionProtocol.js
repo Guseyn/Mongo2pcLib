@@ -1,3 +1,5 @@
+'use strict'
+
 class TransactionProtocol {
 
 	constructor(id, rollbackId, сollection, operations, callbacks) {
@@ -21,6 +23,10 @@ class TransactionProtocol {
 	}
 
 	nextState() {
+		return {};
+	}
+
+	failState() {
 		return {};
 	}
 

@@ -3,8 +3,8 @@ const InvokedTransaction = require('./../invokedTransaction');
 
 class InitialTransactionState extends AsyncObject {
 
-  constructor(obj, args) {
-    super(obj, args);
+  constructor({preparedTransaction}) {
+    super({preparedTransaction});
   }
 
   call(asyncCall, initialTransactionLog) {
@@ -12,25 +12,12 @@ class InitialTransactionState extends AsyncObject {
   }
 
   onResult(result) {
-    this.obj.nextState().start();
+    // InvokedTransaction
+    this.preparedTransaction.nextState().start();
   }
 
   onError(error) {
-    // Main transaction
-    if (rollbackId != null) {
-      this.obj.nonConsistentFail(
-        new Error(
-          `transaction init error: ${error.message}`
-        )
-      );
-    } else {
-      // Rollback transaction
-      this.obj.consistentFail(
-        new Error(
-          `transaction init error: ${error.message}`
-        )
-      );
-    }
+    this.preparedTransaction.fail(error);
   }
 
 }

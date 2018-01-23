@@ -36,10 +36,31 @@ class PreparedTransaction extends TransactionProtocol {
         this.id, this.rollbackId, this.transactionOperations
       );
 
-      new InitialTransactionState(this, {}).call('logState', initialTransactionLog);
+      new InitialTransactionState({
+        preparedTransaction: this
+      }).call('logState', initialTransactionLog);
       
     }
   }
+
+  fail(error) {
+    // Main transaction
+    if (this.rollbackId != null) {
+      this.nonConsistentFail(
+        new Error(
+          `transaction init error: ${error.message}`
+        )
+      );
+    } else {
+      // Rollback transaction
+      this.consistentFail(
+        new Error(
+          `transaction init error: ${error.message}`
+        )
+      );
+    }
+  }
+
 }
 
 

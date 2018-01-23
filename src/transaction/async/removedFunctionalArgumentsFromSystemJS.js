@@ -4,8 +4,8 @@ const AsyncObject = require('./../../../oop/asyncObject');
 
 class RemovedFunctionalArgumentsFromSystemJS extends AsyncObject {
 
-  constructor({transaction}) {
-    super({transaction});
+  constructor({appliedTransaction}) {
+    super({appliedTransaction});
   }
 
   call(asyncCall, systemJSCollection) {
@@ -13,12 +13,15 @@ class RemovedFunctionalArgumentsFromSystemJS extends AsyncObject {
   }
 
   onResult(result) {
-  	// PreparedTransaction
-  	this.transaction.nextState().invoke();
+  	this.appliedTransaction.commit(this.results);
   }
 
   onError(error) {
-    this.transaction.nonConsistentFail(error);
+    this.transaction.nonConsistentFail(
+      new Error(
+        `systemJS error is not accessable: ${error.message}`
+      )
+    );
   }
 
 }
