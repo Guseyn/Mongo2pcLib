@@ -5,8 +5,8 @@ const CanceledTransactionState = require('./canceledTransactionState');
 
 class AppliedTransactionState extends AsyncObject {
 
-  constructor({pendingTransaction}) {
-    super({pendingTransaction});
+  constructor({pendingTransaction, results}) {
+    super({pendingTransaction, results});
   }
 
   call(asyncCall, initialTransactionLog) {

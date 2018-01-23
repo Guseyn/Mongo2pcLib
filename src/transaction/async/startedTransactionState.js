@@ -8,7 +8,7 @@ class StartedTransactionState extends AsyncObject {
   }
 
   call(asyncCall) {
-    super.call(asyncCall, this.id);
+    super.call(asyncCall);
   }
 
   onResult(result) {

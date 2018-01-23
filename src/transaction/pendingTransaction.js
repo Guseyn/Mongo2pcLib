@@ -92,6 +92,10 @@ class PendingTransaction extends TransactionProtocol {
     return this.transactionOperations.currentNum();
   }
 
+  isLast() {
+    return this.transactionOperations.isLast();
+  }
+
 
 }
 

@@ -15,6 +15,10 @@ class InvokedTransaction extends TransactionProtocol {
     this.transactionCollection.start(this.id, onStart);
   }
 
+  logFail(onFail) {
+    this.transactionCollection.fail(this.id, onFail);
+  }
+
   nextState() {
     return new PendingTransaction(
       this.id, this.rollbackId,
@@ -44,8 +48,8 @@ class InvokedTransaction extends TransactionProtocol {
     if (this.rollbackId != null) {
 
       new FailedTransactionState({
-        pendingTransaction: this
-      }).call('fail', this.id);
+        transaction: this
+      }).call('logFail', this.id);
       
     } else {
 

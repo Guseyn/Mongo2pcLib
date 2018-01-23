@@ -7,8 +7,8 @@ const CanceledTransaction = require('./../canceledTransaction');
 
 class ExecutedOperation extends AsyncObject {
 
-  constructor({pendingTransaction}) {
-    super({pendingTransaction});
+  constructor({pendingTransaction, results}) {
+    super({pendingTransaction, results});
   }
 
   call(asyncCall) {
@@ -19,7 +19,7 @@ class ExecutedOperation extends AsyncObject {
 
     this.results.push(result);
 
-    if (this.transactionOperations.isLast()) {
+    if (this.pendingTransaction.isLast()) {
 
       new AppliedTransactionState({
         pendingTransaction: this.pendingTransaction,
