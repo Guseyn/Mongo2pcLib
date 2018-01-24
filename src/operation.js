@@ -18,7 +18,7 @@ class Operation {
 
   saveRequestFunctionalArgsIntoSystemJS (systemJSCollection, transactionId, saveCallback) {
 
-    this.rollbackRequest.saveFunctionalArgsIntoSystemJS (
+    this.request.saveFunctionalArgsIntoSystemJS (
       systemJSCollection, transactionId, saveCallback
     );
 
