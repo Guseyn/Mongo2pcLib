@@ -44,7 +44,7 @@ class PendingTransaction extends TransactionProtocol {
   }
 
   applyState() {
-    new AppliedTransaction(
+    return new AppliedTransaction(
       this.id, this.rollbackId,
       this.transactionCollection,
       this.transactionOperations.next(),

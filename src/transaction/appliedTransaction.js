@@ -12,8 +12,8 @@ class AppliedTransaction extends TransactionProtocol {
   finish (results) {
     new AccessedSystemJSForRemovingFunctionalArguments({
       appliedTransaction: this,
-      results: this.results
-    });
+      results: results
+    }).call('systemJS');
   }
 
   commit(results) {
