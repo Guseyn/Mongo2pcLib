@@ -1,16 +1,27 @@
 
 'use strict'
 
+const TransactionProtocol = require('./transactionProtocol');
+const InvokedTransaction = require('./invokedTransaction');
 const InitialTransactionState = require('./async/initialTransactionState');
 
-class PreparedTransaction {
+class PreparedTransaction extends TransactionProtocol {
 
   constructor (id, rollbackId, collection, operations, callbacks) {
-    this.id = id;
-    this.rollbackId = rollbackId;
-    this.transactionCollection = collection;
-    this.transactionOperations = operations;
-    this.transactionCallbacks = callbacks;
+    super(id, rollbackId, collection, operations, callbacks);
+  }
+
+  logState (initialTransactionLog, onInit) {
+    this.transactionCollection.init(initialTransactionLog, onInit);
+  }
+
+  nextState() {
+    return new InvokedTransaction(
+      this.id, this.rollbackId,
+      this.transactionCollection,
+      this.transactionOperations,
+      this.transactionCallbacks
+    );
   }
 
   invoke() {
@@ -25,19 +36,31 @@ class PreparedTransaction {
         this.id, this.rollbackId, this.transactionOperations
       );
 
-      new InitialTransactionState(
-        this.transactionCollection,
-        {
-          id: this.id, 
-          rollbackId: this.rollbackId,
-          transactionCollection: this.transactionCollection,
-          transactionOperations: this.transactionOperations,
-          transactionCallbacks: this.transactionCallbacks
-        }
-      ).call('init', initialTransactionLog);
+      new InitialTransactionState({
+        preparedTransaction: this
+      }).call('logState', initialTransactionLog);
       
     }
   }
+
+  fail(error) {
+    // Main transaction
+    if (this.rollbackId != null) {
+      this.nonConsistentFail(
+        new Error(
+          `transaction init error: ${error.message}`
+        )
+      );
+    } else {
+      // Rollback transaction
+      this.consistentFail(
+        new Error(
+          `transaction init error: ${error.message}`
+        )
+      );
+    }
+  }
+
 }
 
 

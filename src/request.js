@@ -1,12 +1,15 @@
 
 'use strict'
 
+const InsertedFunctionalArgDocs = require('./async/insertedFunctionalArgDocs');
+
 class Request {
 
   constructor (methodName, collection, ...args) {
     this.methodName = methodName;
     this.collection = collection;
     this.args = args; // objects, functions
+    this.loggedArgs = [];
   }
 
   execute (results, requestCallback) {
@@ -19,7 +22,7 @@ class Request {
 
   }
 
-  saveFunctionalArgsIntoSystemJS (systemJSCollection, transactionId, saveCallback) {
+  saveFunctionalArgumentsIntoSystemJS (systemJSCollection, transactionId, onSave) {
 
     let functionalArgDocs = this.args
       .filter(arg => typeof(arg) === 'function')
@@ -30,29 +33,22 @@ class Request {
         }
       });
     
-      if (functionalArgDocs.length !== 0) {
+    if (functionalArgDocs.length !== 0) {
 
-        systemJSCollection.insertMany(functionalArgDocs, (error, result) => {
+      new InsertedFunctionalArgDocs({
+        systemJSCollection, request: this, onSave
+      }).call('insertMany', functionalArgDocs);
 
-          if (error == null) {
-            this.setLogArgsBySavedFunctionalArgsIntoSystemJSResult(result);           
-          }
-
-          saveCallback(error);
-          
-        });
-
-      } else {
+    } else {
         
-        saveCallback(null);
+      onSave(null);
       
-      }
+    }
 
   }
 
   setLogArgsBySavedFunctionalArgsIntoSystemJSResult (result) {
     let argCount = 0;
-    this.loggedArgs = [];
     this.args.forEach((arg) => {
       let pushedArg;
       if (typeof(arg) === 'function') {
@@ -68,7 +64,7 @@ class Request {
   log() {
     return {
       methodName: this.methodName,
-      args: this.loggedArgs || this.args
+      args: this.loggedArgs
     }
   }
 

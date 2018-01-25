@@ -1,44 +1,33 @@
-const ExecutedOperation = require('./async/executedOperation');
+'use strict'
 
-class AppliedTransaction {
+const TransactionProtocol = require('./transactionProtocol');
+const AccessedSystemJSForRemovingFunctionalArguments = require('./async/accessedSystemJSForRemovingFunctionalArguments');
+
+class AppliedTransaction extends TransactionProtocol {
 
   constructor (id, rollbackId, collection, operations, callbacks) {
-    this.id = id;
-    this.rollbackId = rollbackId;
-    this.transactionCollection = collection;
-    this.transactionOperations = operations;
-    this.transactionCallbacks = callbacks;
+    super(id, rollbackId, collection, operations, callbacks);
   }
 
   finish (results) {
+    new AccessedSystemJSForRemovingFunctionalArguments({
+      appliedTransaction: this,
+      results: results
+    }).call('systemJS');
+  }
 
-    this.transactionCollection.systemJS(
-      (error, systemJSCollection) => {
+  commit (results) {
+    this.transactionCallbacks.commit(this.id, results);
+  }
 
-        if (error == null) {
+  systemJS (onAccess) {
+    this.transactionCollection.systemJS(onAccess);
+  }
 
-          this.transactionOperations.removeFunctionalArgsFromSystemJS (
-            systemJSCollection, this.id, this.rollbackId, (error) => {
-
-              if (error == null) {
-                this.transactionCallbacks.commit(this.id, results);
-              } else {
-                this.transactionCallbacks.nonConsistentFail(error, this.id);
-              }
-            
-            }
-          );
-
-        } else {
-
-          this.transactionCallbacks.nonConsistentFail (
-            new Error(
-              `systemJS error is not accessable: ${error.message}`
-            ), this.id
-          );
-
-        }
-      });
+  removeFunctionalArgumentsFromSystemJS(systemJSCollection, onRemove) {
+    this.transactionOperations.removeFunctionalArgumentsFromSystemJS(
+      systemJSCollection, this.id, this.rollbackId, onRemove
+    );
   }
 
 }

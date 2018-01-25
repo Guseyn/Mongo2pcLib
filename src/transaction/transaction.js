@@ -2,24 +2,12 @@
 
 const TransactionProtocol = require('./transactionProtocol');
 const PreparedTransaction = require('./preparedTransaction');
-const AccessedSystemJS = require('./async/accessedSystemJS');
+const AccessedSystemJSForSavingFunctionalArguments = require('./async/AccessedSystemJSForSavingFunctionalArguments');
 
 class Transaction extends TransactionProtocol {
 
   constructor (id, rollbackId, сollection, operations, callbacks) {
     super(id, rollbackId, сollection, operations, callbacks);
-  }
-
-  consistentFail(error) {
-    super.consistentFail(error);
-  }
-
-  nonConsistentFail(error) {
-    super.nonConsistentFail(error);
-  }
-
-  logState() {
-    
   }
 
   nextState() {
@@ -35,10 +23,30 @@ class Transaction extends TransactionProtocol {
   invoke() {this.prepare();}
 
   prepare () {
-    new AccessedSystemJS(this, {}).call('systemJS');
+    new AccessedSystemJSForSavingFunctionalArguments({
+      transaction: this
+    }).call('systemJS');
   }
-  
-  systemJS(onAccess) {
+
+  fail(error) {
+    // Main transaction
+    if (this.rollbackId != null) {
+      this.nonConsistentFail(
+        new Error(
+          `systemJS error is not accessable: ${error.message}`
+        )
+      );
+    } else {
+      // Rollback transcation
+      this.consistentFail(
+        new Error(
+          `systemJS error is not accessable: ${error.message}`
+        )
+      );
+    }
+  }
+
+  systemJS (onAccess) {
     this.transactionCollection.systemJS(onAccess);
   }
 

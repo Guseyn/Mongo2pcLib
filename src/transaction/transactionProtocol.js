@@ -1,6 +1,8 @@
+'use strict'
+
 class TransactionProtocol {
 
-	constructor(id, rollbackId, сollection, operations, callbacks) {
+	constructor (id, rollbackId, сollection, operations, callbacks) {
 		this.id = id;
     this.rollbackId = rollbackId;
     this.transactionCollection = сollection;
@@ -8,11 +10,11 @@ class TransactionProtocol {
     this.transactionCallbacks = callbacks;
 	}
 
-	consistentFail(error) {
+	consistentFail (error) {
 		this.transactionCallbacks.consistentFail(error, this.id);
 	}
 
-	nonConsistentFail(error) {
+	nonConsistentFail (error) {
 		this.transactionCallbacks.nonConsistentFail(error, this.id);
 	}
 
@@ -21,6 +23,10 @@ class TransactionProtocol {
 	}
 
 	nextState() {
+		return {};
+	}
+
+	failState() {
 		return {};
 	}
 

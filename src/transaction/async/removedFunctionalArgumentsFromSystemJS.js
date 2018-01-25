@@ -4,8 +4,8 @@ const AsyncObject = require('./../../../oop/asyncObject');
 
 class RemovedFunctionalArgumentsFromSystemJS extends AsyncObject {
 
-  constructor({transaction}) {
-    super({transaction});
+  constructor({appliedTransaction, results}) {
+    super({appliedTransaction, results});
   }
 
   call(asyncCall, systemJSCollection) {
@@ -13,14 +13,13 @@ class RemovedFunctionalArgumentsFromSystemJS extends AsyncObject {
   }
 
   onResult(result) {
-  	// PreparedTransaction
-  	this.transaction.nextState().invoke();
+  	this.appliedTransaction.commit(this.results);
   }
 
   onError(error) {
-    this.transaction.nonConsistentFail(
-    	new Error(
-        `cannot save argFuncs: ${error.message}`
+    this.appliedTransaction.nonConsistentFail(
+      new Error(
+        `cannot remove argFuncs: ${error.message}`
       )
     );
   }

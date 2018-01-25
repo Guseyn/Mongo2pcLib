@@ -1,5 +1,7 @@
 'use strict'
 
+const SavedOperationRequestFunctionalArgumentsIntoSystem = require('./async/savedOperationRequestFunctionalArgumentsIntoSystemJS');
+
 class TransactionOperations {
 
   constructor (...operations) {
@@ -7,9 +9,9 @@ class TransactionOperations {
     this.currentOperationNum = 0;
   }
 
-  executeCurrent (results, executeCallback) {
+  executeCurrent (results, onExecute) {
     this.current().executeRequest(
-      results, executeCallback
+      results, onExecute
     );
   }
 
@@ -42,13 +44,9 @@ class TransactionOperations {
     return new TransactionOperations(this.sliceByCurrentNum().map(operation => operation.rollbackOperation()));
   }
 
-  saveFunctionalArgumentsIntoSystemJS (
-    systemJSCollection, 
-    transactionId, rollbackTransactionId,
-    saveCallback
-  ) {
+  saveFunctionalArgumentsIntoSystemJS (systemJSCollection, transactionId, rollbackTransactionId, onSave) {
 
-    let savedCount = 0;
+    let savedCount = {value: 0};
     let operationsLength = this.operations.length;
 
     this.operations.forEach(
@@ -56,55 +54,16 @@ class TransactionOperations {
 
         (function(operation, index) {
 
-          operation.saveRequestFunctionalArgsIntoSystemJS(
-            systemJSCollection, transactionId, (error) => {
-
-              if (error != null) {
-
-                saveCallback(
-                  new Error(
-                    `error while saving request functional args of operation with number ${index}, error:${error.message}`
-                  )
-                );
-
-              } else {
-
-                if (rollbackTransactionId != null) {
-                  
-                  operation.saveRollbackRequestFunctionalArgsIntoSystemJS(
-                    systemJSCollection, rollbackTransactionId, (error) => {
-
-                      if (error != null) {
-
-                        saveCallback(
-                          new Error(
-                            `error while saving rollback request functional args of operation with number ${index}, error:${error.message}`
-                          )
-                        );
-
-                      } else {
-
-                        savedCount += 1;
-                        if (savedCount === operationsLength - 1) {
-                          saveCallback(null);
-                        }
-
-                      }
-
-                    }
-                  );
-
-                } else {
-
-                  savedCount += 1;
-                  if (savedCount === operationsLength - 1) {
-                    saveCallback(null);
-                  }
-
-                }
-              }
-            }
-          );
+          new SavedOperationRequestFunctionalArgumentsIntoSystem({
+            operation,
+            systemJSCollection, 
+            transactionId,
+            rollbackTransactionId, 
+            index,
+            savedCount,
+            operationsLength,
+            onSave
+          }).call('saveRequestFunctionalArgumentsIntoSystemJS');
       
         })(operation, index);
       
@@ -112,50 +71,18 @@ class TransactionOperations {
     
   }
 
-  removeFunctionalArgsFromSystemJS (
-    systemJSCollection, 
-    transactionId, rollbackTransactionId, 
-    removeCallback
-  ) {
+  removeFunctionalArgumentsFromSystemJS (systemJSCollection, transactionId, rollbackTransactionId, onRemove) {
 
-    systemJSCollection.deleteMany(
-      {transactionId: transactionId}, (error, result) => {
+    systemJSCollection.deleteMany({
+      transactionId: {
+        $in:[transactionId].concat(
+          rollbackTransactionId != null 
+          ? [rollbackTransactionId] 
+          : []
+        )
+      }
+    }, onRemove);
 
-        if (error != null) {
-          
-          removeCallback(
-            new Error(
-              `error while removing request functional args of operations`
-            )
-          );
-
-        } else {
-
-          if (rollbackTransactionId != null) {
-
-            systemJSCollection.deleteMany(
-              {transactionId: rollbackTransactionId}, (error, result) => {
-              
-                if (error != null) {
-
-                  removeCallback(
-                    new Error(
-                      `error while removing rollback request functional args of operations`
-                    )
-                  );
-
-                } else {
-
-                  removeCallback(null);
-
-                }
-
-            });
-
-          }
-
-        }
-    });
   }
 
   requestLog() {

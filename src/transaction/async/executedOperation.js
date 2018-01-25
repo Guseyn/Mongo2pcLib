@@ -1,12 +1,14 @@
 const AsyncObject = require('./../../../oop/asyncObject');
 const UpgradedTransactionState = require('./upgradedTransactionState');
+const AppliedTransactionState = require('./appliedTransactionState');
+const CanceledTransactionState = require('./canceledTransactionState');
 const AppliedTransaction = require('./../appliedTransaction');
 const CanceledTransaction = require('./../canceledTransaction');
 
 class ExecutedOperation extends AsyncObject {
 
-  constructor(asyncFunc, args) {
-    super(asyncFunc, args);
+  constructor({pendingTransaction, results}) {
+    super({pendingTransaction, results});
   }
 
   call(asyncCall) {
@@ -17,89 +19,30 @@ class ExecutedOperation extends AsyncObject {
 
     this.results.push(result);
 
-    if (this.transactionOperations.isLast()) {
+    if (this.pendingTransaction.isLast()) {
 
-      this.transactionCollection.apply(
-        this.id, result, this.transactionOperations.currentNum(), 
-        (error, result) => {
+      new AppliedTransactionState({
+        pendingTransaction: this.pendingTransaction,
+        results: this.results
+      }).call('logAppliedState', result);
 
-          if (error == null) {
+    } else {
 
-            new AppliedTransaction(
-                      this.id,
-                      this.rollbackId,
-                      this.transactionCollection,
-                      this.transactionOperations.next(),
-                      this.transactionCallbacks
-            ).finish(this.results);
+      new UpgradedTransactionState({
+        pendingTransaction: this.pendingTransaction,
+        results: this.results
+      }).call('logNextPendingState', result);
 
-          } else {
-
-              this.cancel('applying transaction');
-
-          }
-
-        }
-       );
-
-      } else {
-
-        new UpgradedTransactionState(
-          this.transactionCollection,
-          {
-            pendingTransaction: this.pendingTransaction,
-            id: this.id, 
-            rollbackId: this.rollbackId,
-            transactionCollection: this.transactionCollection,
-            transactionOperations: this.transactionOperations,
-            transactionCallbacks: this.transactionCallbacks,
-            results: this.results
-          }
-        ).call('upgrade', result);
-
-      }
+    }
         
   }
 
   onError(error) {
-
-     this.cancel(`executing of the operation with number ${this.transactionOperations.currentNum()}`)
-
+    new CanceledTransactionState({
+      pendingTransaction: this.pendingTransaction,
+      errorMessage: `cannot execute operation with number ${this.pendingTransaction.currentNum()}: ${error.mesasge}`
+    }).call('logCancelState');
   }
-
-
-    cancel (specificCancelMessage) {
-
-        if (this.rollbackId != null) {
-
-          this.transactionCollection.cancel(
-            this.id, this.transactionOperations.currentNum(),
-              (error, result) => {
-
-                if (error == null) {
-                    
-                  new CanceledTransaction(
-                    this.id,
-                    this.rollbackId,
-                    this.transactionCollection,
-                    this.transactionOperations,
-                    this.transactionCallbacks
-                  ).rollback();
-
-                } else {
-
-                  this.transactionCallbacks.consistentFail(
-                    new Error(
-                      `${specificCancelMessage} failed with error: ${error.mesasge}`
-                    ), this.id
-                  );
-
-                }
-
-              }
-          );
-        }
-    }
 
 }
 

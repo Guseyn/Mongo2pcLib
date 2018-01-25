@@ -1,10 +1,11 @@
+'use strict'
+
 const AsyncObject = require('./../../../oop/asyncObject');
-const FailedTransaction = require('./../failedTransaction');
 
 class FailedTransactionState extends AsyncObject {
 
-  constructor(asyncFunc, args) {
-    super(asyncFunc, args);
+  constructor({transaction}) {
+    super({transaction});
   }
 
   call(asyncCall) {
@@ -12,21 +13,16 @@ class FailedTransactionState extends AsyncObject {
   }
 
   onResult(result) {
-    new FailedTransaction(
-      this.id,
-      this.rollbackId,
-      this.transactionCollection,
-      this.transactionOperations,
-      this.transactionCallbacks
-    ).out();
+    // FailedTransaction
+    this.transaction.failState().out();
   }
 
   onError(error) {
 
-    this.transactionCallbacks.nonConsistentFail(
+    this.transaction.nonConsistentFail(
       new Error(
         `faled on changing state of the transaction to fail state with error: ${error.message}`
-      ), this.id
+      )
     );
 
   }

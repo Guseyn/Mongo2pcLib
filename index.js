@@ -19,6 +19,8 @@ const url = 'mongodb://localhost:27017';
 // Database Name
 const dbName = 'dbApp';
 
+let d1 = new Date().getTime();
+
 // Use connect method to connect to the server
 MongoClient.connect(url, function(err, client) {
   assert.equal(null, err);
@@ -78,6 +80,7 @@ MongoClient.connect(url, function(err, client) {
       ),
       new TransactionCallbacks(
         new OnCommit((transactionId, results) => {
+          console.log(new Date().getTime() - d1);
           console.log(results);
           client.close();
         }),

@@ -1,20 +1,18 @@
 'use strict'
 
-class FailedTransaction {
+const TransactionProtocol = require('./transactionProtocol');
+
+class FailedTransaction extends TransactionProtocol {
 
     constructor (id, rollbackId, collection, operations, callbacks) {
-        this.id = id;
-        this.rollbackId = rollbackId;
-        this.transactionCollection = collection;
-        this.transactionOperations = operations;
-        this.transactionCallbacks = callbacks;
+      super(id, rollbackId, collection, operations, callbacks);
     }
 
     out() {
-      this.transactionCallbacks.nonConsistentFail(
+      super.nonConsistentFail(
         new Error(
-            `error: transaction failed, but consistency of the db is not broken`
-        ), this.id
+          `error: transaction failed, but consistency of the db is not broken`
+        )
       );
     }
 

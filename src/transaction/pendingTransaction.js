@@ -1,43 +1,99 @@
 
+const TransactionProtocol = require('./transactionProtocol');
+const AppliedTransaction = require('./appliedTransaction');
+const CanceledTransaction = require('./canceledTransaction');
 const ExecutedOperation = require('./async/executedOperation');
 
-class PendingTransaction {
+class PendingTransaction extends TransactionProtocol {
 
   constructor (id, rollbackId, collection, operations, callbacks) {
-    this.id = id;
-    this.rollbackId = rollbackId;
-    this.transactionCollection = collection;
-    this.transactionOperations = operations;
-    this.transactionCallbacks = callbacks;
+    super(id, rollbackId, collection, operations, callbacks);
+  }
+
+  logAppliedState (result, onApply) {
+    this.transactionCollection.apply(
+      this.id, result, this.currentNum(), onApply
+    );
+  }
+
+  logNextPendingState (result, onUpgrade) {
+    this.transactionCollection.upgrade(
+      this.id, result, this.currentNum(), onUpgrade
+    );
+  }
+
+  logCancelState (onCancel) {
+    this.transactionCollection.cancel(
+      this.id, this.currentNum(), onCancel
+    );
+  }
+
+  consistentFail (error) {
+    if (this.rollbackId != null) {
+      super.consistentFail(error);
+    }
+  }
+
+  nextState() {
+    return new PendingTransaction(
+      this.id, this.rollbackId,
+      this.transactionCollection,
+      this.transactionOperations.next(),
+      this.transactionCallbacks
+    );
+  }
+
+  applyState() {
+    return new AppliedTransaction(
+      this.id, this.rollbackId,
+      this.transactionCollection,
+      this.transactionOperations.next(),
+      this.transactionCallbacks
+    );
+  }
+
+  cancelState() {
+
+    if (this.rollbackId != null) {
+      
+      return new CanceledTransaction(
+        this.id, this.rollbackId,
+        this.transactionCollection,
+        this.transactionOperations,
+        this.transactionCallbacks
+      );
+
+    } else {
+
+      return {
+        rollback:() => {}
+      }
+
+    }
+
   }
 
   upgrade (results) {
 
     results = results || [];
 
-    new ExecutedOperation(
-      this.transactionOperations,
-      {
-        pendingTransaction: this,
-        id: this.id, 
-        rollbackId: this.rollbackId,
-        transactionCollection: this.transactionCollection,
-        transactionOperations: this.transactionOperations,
-        transactionCallbacks: this.transactionCallbacks,
-        results: results
-      }
-    ).call('executeCurrent');
+    new ExecutedOperation({
+      pendingTransaction: this,
+      results: results
+    }).call('executeCurrent');
 
   }
 
-  next() {
-    return new PendingTransaction(
-      this.id,
-      this.rollbackId,
-      this.transactionCollection,
-      this.transactionOperations.next(),
-      this.transactionCallbacks
-    );
+  executeCurrent(results, onExecute) {
+    this.transactionOperations.executeCurrent(results, onExecute);
+  }
+
+  currentNum() {
+    return this.transactionOperations.currentNum();
+  }
+
+  isLast() {
+    return this.transactionOperations.isLast();
   }
 
 
