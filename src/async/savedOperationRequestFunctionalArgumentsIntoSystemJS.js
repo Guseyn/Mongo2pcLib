@@ -5,7 +5,7 @@ const SavedOperationRollbackRequestFunctionalArgumentsIntoSystemJS = require('./
 
 class SavedOperationRequestFunctionalArgumentsIntoSystemJS extends AsyncObject {
 
-  constructor({
+  constructor ({
   	operation,
   	systemJSCollection,
   	transactionId,
@@ -15,7 +15,7 @@ class SavedOperationRequestFunctionalArgumentsIntoSystemJS extends AsyncObject {
   	operationsLength,
   	onSave
   }) {
-    super({
+    super ({
     	operation,
     	systemJSCollection,
     	transactionId,
@@ -27,11 +27,11 @@ class SavedOperationRequestFunctionalArgumentsIntoSystemJS extends AsyncObject {
     });
   }
 
-  call(asyncCall) {
+  call (asyncCall) {
     super.call(asyncCall, this.systemJSCollection, this.transactionId);
   }
 
-  onResult(result) {
+  onResult (result) {
   	if (this.rollbackTransactionId != null) {
 
   		new SavedOperationRollbackRequestFunctionalArgumentsIntoSystemJS({
@@ -53,7 +53,7 @@ class SavedOperationRequestFunctionalArgumentsIntoSystemJS extends AsyncObject {
     }
   }
 
-  onError(error) {
+  onError (error) {
   	this.onSave(
   		new Error(
   			`error while saving request functional args of operation with number ${index}, error:${error.message}`

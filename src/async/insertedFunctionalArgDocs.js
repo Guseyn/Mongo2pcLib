@@ -4,20 +4,20 @@ const AsyncObject = require('./../../oop/asyncObject');
 
 class InsertedFunctionalArgDocs extends AsyncObject {
 
-  constructor({systemJSCollection, request, onSave}) {
+  constructor ({systemJSCollection, request, onSave}) {
     super({systemJSCollection, request, onSave});
   }
 
-  call(asyncCall, functionalArgDocs) {
+  call (asyncCall, functionalArgDocs) {
     super.call(asyncCall, functionalArgDocs);
   }
 
-  onResult(result) {
+  onResult (result) {
     this.request.setLogArgsBySavedFunctionalArgsIntoSystemJSResult(result);  
     this.onSave(null);
   }
 
-  onError(error) {
+  onError (error) {
     this.onSave(error);
   }
 
