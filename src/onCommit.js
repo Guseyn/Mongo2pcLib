@@ -6,7 +6,7 @@ class OnCommit {
     this.callback = callback;
   }
 
-  call(transactionId, results) {
+  call (transactionId, results) {
     this.callback(transactionId, results);
   }
 

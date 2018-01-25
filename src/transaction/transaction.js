@@ -46,7 +46,7 @@ class Transaction extends TransactionProtocol {
     }
   }
 
-  systemJS(onAccess) {
+  systemJS (onAccess) {
     this.transactionCollection.systemJS(onAccess);
   }
 

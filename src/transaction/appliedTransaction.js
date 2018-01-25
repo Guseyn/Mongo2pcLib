@@ -16,11 +16,11 @@ class AppliedTransaction extends TransactionProtocol {
     }).call('systemJS');
   }
 
-  commit(results) {
+  commit (results) {
     this.transactionCallbacks.commit(this.id, results);
   }
 
-  systemJS(onAccess) {
+  systemJS (onAccess) {
     this.transactionCollection.systemJS(onAccess);
   }
 

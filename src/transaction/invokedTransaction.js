@@ -11,11 +11,11 @@ class InvokedTransaction extends TransactionProtocol {
     super(id, rollbackId, collection, operations, callbacks);
   }
 
-  logState(onStart) {
+  logState (onStart) {
     this.transactionCollection.start(this.id, onStart);
   }
 
-  logFail(onFail) {
+  logFail (onFail) {
     this.transactionCollection.fail(this.id, onFail);
   }
 

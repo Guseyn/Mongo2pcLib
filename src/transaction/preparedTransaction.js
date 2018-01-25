@@ -11,7 +11,7 @@ class PreparedTransaction extends TransactionProtocol {
     super(id, rollbackId, collection, operations, callbacks);
   }
 
-  logState(initialTransactionLog, onInit) {
+  logState (initialTransactionLog, onInit) {
     this.transactionCollection.init(initialTransactionLog, onInit);
   }
 

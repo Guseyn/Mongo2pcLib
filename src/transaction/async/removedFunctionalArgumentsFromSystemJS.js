@@ -19,7 +19,7 @@ class RemovedFunctionalArgumentsFromSystemJS extends AsyncObject {
   onError(error) {
     this.appliedTransaction.nonConsistentFail(
       new Error(
-        `systemJS error is not accessable: ${error.message}`
+        `cannot remove argFuncs: ${error.message}`
       )
     );
   }

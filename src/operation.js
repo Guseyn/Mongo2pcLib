@@ -16,20 +16,20 @@ class Operation {
     this.request.execute(results, requestCallback);
   }
 
-  saveRequestFunctionalArgsIntoSystemJS (systemJSCollection, transactionId, saveCallback) {
+  saveRequestFunctionalArgumentsIntoSystemJS (systemJSCollection, transactionId, onSave) {
 
-    this.request.saveFunctionalArgsIntoSystemJS (
-      systemJSCollection, transactionId, saveCallback
+    this.request.saveFunctionalArgumentsIntoSystemJS (
+      systemJSCollection, transactionId, onSave
     );
 
   }
 
-  saveRollbackRequestFunctionalArgsIntoSystemJS (systemJSCollection, transactionId, saveCallback) {
+  saveRollbackRequestFunctionalArgumentsIntoSystemJS (systemJSCollection, transactionId, onSave) {
     if (!this.rollbackRequest) {
-      throw new Error('saveRollbackRequestFunctionalArgsIntoSystemJS is not supported for the current(rollback) transaction');
+      throw new Error('saveRollbackRequestFunctionalArgumentsIntoSystemJS is not supported for the current(rollback) transaction');
     }
-    this.rollbackRequest.saveFunctionalArgsIntoSystemJS (
-      systemJSCollection, transactionId, saveCallback
+    this.rollbackRequest.saveFunctionalArgumentsIntoSystemJS (
+      systemJSCollection, transactionId, onSave
     );
   }
 

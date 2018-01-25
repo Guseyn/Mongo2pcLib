@@ -5,21 +5,21 @@ const SavedFunctionalArgumentsIntoSystemJS = require('./savedFunctionalArguments
 
 class AccessedSystemJSForSavingFunctionalArguments extends AsyncObject {
 
-  constructor({transaction}) {
+  constructor ({transaction}) {
     super({transaction});
   }
 
-  call(asyncCall) {
+  call (asyncCall) {
     super.call(asyncCall);
   }
 
-  onResult(systemJSCollection) {
+  onResult (systemJSCollection) {
     new SavedFunctionalArgumentsIntoSystemJS({
       transaction: this.transaction
     }).call('saveFunctionalArgumentsIntoSystemJS', systemJSCollection);
   }
 
-  onError(error) {
+  onError (error) {
     this.transaction.fail(error);
   }
 

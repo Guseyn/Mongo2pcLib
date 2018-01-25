@@ -18,7 +18,11 @@ class RemovedFunctionalArgumentsFromSystemJS extends AsyncObject {
   }
 
   onError(error) {
-    this.transaction.nonConsistentFail(error);
+    this.transaction.nonConsistentFail(
+    	new Error(
+        `cannot save argFuncs: ${error.message}`
+      )
+    );
   }
 
 }

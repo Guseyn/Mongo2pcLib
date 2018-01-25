@@ -10,25 +10,25 @@ class PendingTransaction extends TransactionProtocol {
     super(id, rollbackId, collection, operations, callbacks);
   }
 
-  logAppliedState(result, onApply) {
+  logAppliedState (result, onApply) {
     this.transactionCollection.apply(
       this.id, result, this.currentNum(), onApply
     );
   }
 
-  logNextPendingState(result, onUpgrade) {
+  logNextPendingState (result, onUpgrade) {
     this.transactionCollection.upgrade(
       this.id, result, this.currentNum(), onUpgrade
     );
   }
 
-  logCancelState(onCancel) {
+  logCancelState (onCancel) {
     this.transactionCollection.cancel(
       this.id, this.currentNum(), onCancel
     );
   }
 
-  consistentFail(error) {
+  consistentFail (error) {
     if (this.rollbackId != null) {
       super.consistentFail(error);
     }

@@ -3,20 +3,20 @@ const CanceledTransaction = require('./../canceledTransaction');
 
 class UpgradedTransactionState extends AsyncObject {
 
-  constructor({pendingTransaction, results}) {
+  constructor ({pendingTransaction, results}) {
     super({pendingTransaction, results});
   }
 
-  call(asyncCall, result) {
+  call (asyncCall, result) {
     super.call(asyncCall, result);
   }
 
-  onResult(result) {
+  onResult (result) {
     // Pending Transaction
     this.pendingTransaction.nextState().upgrade(this.results);
   }
 
-  onError(error) {
+  onError (error) {
     new CanceledTransactionState({
       pendingTransaction: this.pendingTransaction,
       errorMessage: `cannot upgrade pending transaction: ${error.mesasge}`

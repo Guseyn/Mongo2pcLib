@@ -5,22 +5,22 @@ const RemovedFunctionalArgumentsFromSystemJS = require('./removedFunctionalArgum
 
 class AccessedSystemJSForRemovingFunctionalArguments extends AsyncObject {
 
-  constructor({appliedTransaction, results}) {
+  constructor ({appliedTransaction, results}) {
     super({appliedTransaction, results});
   }
 
-  call(asyncCall) {
+  call (asyncCall) {
     super.call(asyncCall);
   }
 
-  onResult(systemJSCollection) {
+  onResult (systemJSCollection) {
     new RemovedFunctionalArgumentsFromSystemJS({
       appliedTransaction: this.appliedTransaction,
       results: this.results
     }).call('removeFunctionalArgumentsFromSystemJS', systemJSCollection);
   }
 
-  onError(error) {
+  onError (error) {
     this.appliedTransaction.nonConsistentFail (
       new Error(
         `systemJS error is not accessable: ${error.message}`
