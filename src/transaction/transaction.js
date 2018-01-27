@@ -2,7 +2,7 @@
 
 const TransactionProtocol = require('./transactionProtocol');
 const PreparedTransaction = require('./preparedTransaction');
-const AccessedSystemJSForSavingFunctionalArguments = require('./async/AccessedSystemJSForSavingFunctionalArguments');
+const AccessedSystemJSForSavingFunctionalArguments = require('./async/accessedSystemJSForSavingFunctionalArguments');
 
 class Transaction extends TransactionProtocol {
 
