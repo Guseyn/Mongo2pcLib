@@ -2,7 +2,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const assert = require('assert');
 
-const Transaction = require('./src/transaction/transaction');
+const Transaction = require('./isrc/transaction/transaction');
 const TransactionCollection = require('./src/transactionCollection');
 const TransactionOperations = require('./src/transactionOperations');
 const TransactionCallbacks = require('./src/transactionCallbacks');
