@@ -50,7 +50,7 @@ class Transaction extends TransactionProtocol {
     this.transactionCollection.systemJS(onAccess);
   }
 
-  saveFunctionalArgumentsIntoSystemJS(systemJSCollection, onSave) {
+  saveFunctionalArgumentsIntoSystemJS (systemJSCollection, onSave) {
     this.transactionOperations.saveFunctionalArgumentsIntoSystemJS(
       systemJSCollection, this.id, this.rollbackId, onSave
     );

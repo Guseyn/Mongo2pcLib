@@ -2,7 +2,7 @@
 
 const AsyncObject = require('./../../../oop/asyncObject');
 
-class RemovedFunctionalArgumentsFromSystemJS extends AsyncObject {
+class SavedFunctionalArgumentsIntoSystemJS extends AsyncObject {
 
   constructor({transaction}) {
     super({transaction});
@@ -27,4 +27,4 @@ class RemovedFunctionalArgumentsFromSystemJS extends AsyncObject {
 
 }
 
-module.exports = RemovedFunctionalArgumentsFromSystemJS;
+module.exports = SavedFunctionalArgumentsIntoSystemJS;
