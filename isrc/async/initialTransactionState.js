@@ -2,16 +2,30 @@ const AsyncObject = require('./../../ioop/asyncObject');
 
 class InitialTransactionState extends AsyncObject {
 
-  constructor({transaction, initialTransactionLog}, onInitAsyncObject) {
-    super({transaction, initialTransactionLog}, onInitAsyncObject);
+  constructor({id, rollbackId, сollection, callbacks, initialTransactionLog}, onInitAsyncObject) {
+    super({id, rollbackId, сollection, callbacks, initialTransactionLog}, onInitAsyncObject);
   }
 
   call() {
-    super.call(this.transaction, 'init', this.initialTransactionLog);
+    super.call(this.сollection, 'init', this.initialTransactionLog);
   }
 
   onFail(error) {
-    this.transaction.initFail(error);
+  	// Main transaction
+    if (this.rollbackId != null) {
+      this.callbacks.nonConsistentFail(
+        new Error(
+          `transaction init error: ${error.message}`
+        ), this.id
+      );
+    } else {
+      // Rollback transaction
+      this.callbacks.consistentFail(
+        new Error(
+          `transaction init error: ${error.message}`
+        ), this.id
+      );
+    }
   }
 
 }

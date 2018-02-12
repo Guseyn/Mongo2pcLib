@@ -41,6 +41,7 @@ class TransactionCollection {
       {
         $set: {state: 'applied'},
         $inc: {operationNum: 1},
+        $push: {results: result},
         $currentDate: {lastModified: true}
       },
       {returnOriginal: false},
